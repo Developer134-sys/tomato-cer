@@ -1,39 +1,27 @@
 class SeverityService {
   static String getSeverity(String label) {
+    // normalisasi biar aman
+    label = label.toLowerCase().replaceAll("tomato___", "").trim();
+
     switch (label) {
-      case "Bacterial_spot":
-        return "Sedang";
+      case "bacterial_spot":
+      case "early_blight":
+      case "spider_mites two-spotted_spider_mite":
+      case "target_spot":
+      case "tomato_mosaic_virus":
+        return "Peringatan Sedang";
 
-      case "Early_blight":
-        return "Sedang";
+      case "late_blight":
+      case "tomato_yellow_leaf_curl_virus":
+        return "Peringatan Tinggi";
 
-      case "Late_blight":
-        return "Berat"; // Paling berbahaya pada tomat
-
-      case "Leaf_Mold":
-        return "Ringan"; // Biasanya tidak mematikan
-
-      case "Septoria_leaf_spot":
-        return "Ringan"; // bercak kecil-kecil
-
-      case "Spider_mites Two-spotted_spider_mite":
-        return "Sedang"; // serangan bisa menyebar cepat
-
-      case "Target_Spot":
-        return "Sedang"; // bercak besar, tapi tidak mematikan
-
-      case "Tomato_Yellow_Leaf_Curl_Virus":
-        return "Berat"; // virus hanya bisa dikendalikan, tidak bisa disembuhkan
-
-      case "Tomato_mosaic_virus":
-        return "Sedang";
-
+      case "leaf_mold":
+      case "septoria_leaf_spot":
       case "powdery_mildew":
-        return "Ringan"; // jamur, umumnya ringan–sedang
+        return "Peringatan Rendah";
 
       case "healthy":
-      case "Healthy":
-        return "Tidak ada serangan";
+        return "Aman";
 
       default:
         return "Tidak diketahui";

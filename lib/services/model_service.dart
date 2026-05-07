@@ -7,38 +7,57 @@ class ModelService {
   Interpreter? _interpreter;
   List<String> labels = [];
 
+  // LOAD MODEL
   Future<void> loadModel() async {
     try {
       _interpreter = await Interpreter.fromAsset('assets/model.tflite');
-      print("MODEL LOADED");
+      print("✅ MODEL LOADED");
     } catch (e) {
-      print("ERROR LOAD MODEL: $e");
+      print("❌ ERROR LOAD MODEL: $e");
     }
   }
 
+  // LOAD LABEL
   Future<void> loadLabels() async {
-    String data = await rootBundle.loadString('assets/labels.txt');
-    labels = data.split('\n').map((e) => e.trim()).toList();
-    print("LABEL LOADED: $labels");
+    try {
+      String data = await rootBundle.loadString('assets/labels.txt');
+      labels = data.split('\n').map((e) => e.trim()).toList();
+      print("✅ LABEL LOADED: $labels");
+    } catch (e) {
+      print("❌ ERROR LOAD LABEL: $e");
+    }
   }
 
+  // PREDICT
   Future<Map<String, dynamic>> predict(File image) async {
+    if (_interpreter == null) {
+      throw Exception("Model belum di-load");
+    }
+
     final bytes = await image.readAsBytes();
     img.Image? ori = img.decodeImage(bytes);
 
-    img.Image resized = img.copyResize(ori!, width: 224, height: 224);
+    if (ori == null) {
+      throw Exception("Gagal membaca gambar");
+    }
 
+    img.Image resized = img.copyResize(ori, width: 224, height: 224);
+
+    // INPUT NORMALIZATION
     var input = List.generate(
       1,
       (i) => List.generate(
         224,
         (x) => List.generate(
           224,
-          (y) => [
-            resized.getPixel(x, y).r / 255.0,
-            resized.getPixel(x, y).g / 255.0,
-            resized.getPixel(x, y).b / 255.0,
-          ],
+          (y) {
+            final pixel = resized.getPixel(x, y);
+            return [
+              pixel.r / 255.0,
+              pixel.g / 255.0,
+              pixel.b / 255.0,
+            ];
+          },
         ),
       ),
     );
@@ -47,13 +66,19 @@ class ModelService {
 
     _interpreter!.run(input, output);
 
-    List<double> score = List<double>.from(output[0]);
-    double maxProb = score.reduce((a, b) => a > b ? a : b);
-    int index = score.indexOf(maxProb);
+    // 🔥 LANGSUNG PAKAI OUTPUT (TANPA SOFTMAX)
+    List<double> probs = List<double>.from(output[0]);
+
+    double maxProb = probs.reduce((a, b) => a > b ? a : b);
+    int index = probs.indexOf(maxProb);
+
+    // DEBUG
+    print("OUTPUT MODEL: $probs");
+    print("PREDICT: ${labels[index]} (${(maxProb * 100).toStringAsFixed(2)}%)");
 
     return {
       "label": labels[index],
-      "accuracy": maxProb * 100,
+      "accuracy": double.parse((maxProb * 100).toStringAsFixed(2)),
     };
   }
 }

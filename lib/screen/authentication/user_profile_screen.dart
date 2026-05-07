@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:testing_aplikasi/widgets/bottom_nav_bar.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -10,564 +11,832 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   late Future<Map<String, dynamic>?> futureProfile;
+  late Future<Map<String, int>> futureStats;
+  int _currentIndex = 4;
 
   @override
   void initState() {
     super.initState();
     futureProfile = getUserProfile();
+    futureStats = getUserStats();
   }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return null;
 
-    final profile = await Supabase.instance.client
-        .from('user_profiles')
-        .select()
-        .eq('user_id', user.id)
-        .maybeSingle();
+    try {
+      final profile = await Supabase.instance.client
+          .from('user_profiles')
+          .select()
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-    if (profile == null) return null;
+      if (profile == null) {
+        print('Profil tidak ditemukan, membuat profil baru...');
+        
+        final newProfile = await Supabase.instance.client
+            .from('user_profiles')
+            .insert({
+              'user_id': user.id,
+              'nama_lengkap': user.userMetadata?['nama_lengkap'] ?? 'Petani Tomat',
+              'alamat': '',
+              'bio': '',
+              'foto_profil': '',
+            })
+            .select()
+            .single();
+        
+        return newProfile as Map<String, dynamic>;
+      }
 
-    return profile as Map<String, dynamic>;
+      return profile as Map<String, dynamic>;
+    } catch (e) {
+      print('Error getUserProfile: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, int>> getUserStats() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return {'totalScan': 0, 'sehat': 0, 'terinfeksi': 0};
+
+    try {
+      final historyData = await Supabase.instance.client
+          .from('history')
+          .select('label')
+          .eq('user_id', user.id);
+
+      int totalScan = historyData.length;
+      int sehat = 0;
+      int terinfeksi = 0;
+
+      for (var item in historyData) {
+        String label = item['label']?.toString().toLowerCase() ?? '';
+        
+        if (label == 'sehat' || label == 'healthy') {
+          sehat++;
+        } else if (label.isNotEmpty && label != 'null') {
+          terinfeksi++;
+        }
+      }
+
+      print('Stats - Total: $totalScan, Sehat: $sehat, Terinfeksi: $terinfeksi');
+
+      return {
+        'totalScan': totalScan,
+        'sehat': sehat,
+        'terinfeksi': terinfeksi,
+      };
+    } catch (e) {
+      print('Error getUserStats: $e');
+      return {'totalScan': 0, 'sehat': 0, 'terinfeksi': 0};
+    }
+  }
+
+  void refreshProfile() {
+    setState(() {
+      futureProfile = getUserProfile();
+      futureStats = getUserStats();
+    });
+  }
+
+  void _onNavTap(int index) {
+    if (_currentIndex == index) return;
+    
+    setState(() {
+      _currentIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/info');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/scan');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/HistoryPage');
+        break;
+      case 4:
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFFBF9F9),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
-          "Profil Saya",
+          "Profil",
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1B1C1C),
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.green[700],
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.agriculture_rounded),
+            icon: const Icon(Icons.settings_rounded, color: Color(0xFF0D631B)),
             onPressed: () {},
           ),
         ],
       ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: futureProfile,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, profileSnapshot) {
+          if (profileSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0D631B)),
               ),
             );
           }
 
-          if (!snapshot.hasData || snapshot.data == null) {
+          if (profileSnapshot.hasError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.psychology_alt_rounded,
-                    size: 80,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.error_outline_rounded, size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    "Profil tidak ditemukan",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[600],
-                    ),
+                    "Terjadi kesalahan",
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Silakan lengkapi profil Anda",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => refreshProfile(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0D631B),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
+                    child: const Text("Coba Lagi"),
                   ),
                 ],
               ),
             );
           }
 
-          final profile = snapshot.data!;
-          final userEmail =
-              Supabase.instance.client.auth.currentUser?.email ?? '';
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Header Profile Card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Colors.green[700]!, Colors.green[500]!],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color.fromARGB(255, 157, 209, 159)
-                            .withOpacity(0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
+          if (!profileSnapshot.hasData || profileSnapshot.data == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person_outline_rounded, size: 80, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Profil tidak ditemukan",
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                   ),
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 3,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              radius: 45,
-                              backgroundColor: Colors.white,
-                              backgroundImage: profile['foto_profil'] != null &&
-                                      profile['foto_profil'] != ''
-                                  ? NetworkImage(profile['foto_profil'])
-                                  : null,
-                              child: profile['foto_profil'] == null ||
-                                      profile['foto_profil'] == ''
-                                  ? Icon(
-                                      Icons.agriculture_rounded,
-                                      size: 40,
-                                      color: Colors.green[700],
-                                    )
-                                  : null,
-                            ),
-                          ),
-
-                          // Verified badge
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.verified,
-                              color: Colors.green[700],
-                              size: 20,
-                            ),
-                          ),
-
-                          // Button edit
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () async {
-                                final result =
-                                    await Navigator.pushNamed(context, '/edit_profile');
-
-                                if (result == true) {
-                                  setState(() {
-                                    futureProfile = getUserProfile();
-                                  });
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.green[700],
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.edit_rounded,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      Text(
-                        profile['nama_lengkap'] ?? 'Petani Tomat',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.email_rounded,
-                            color: Colors.white70,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            userEmail,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.eco_rounded,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              "Petani Tomato",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Info section
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.agriculture_rounded,
-                            color: Colors.green[700],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Informasi Petani",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
-                      _buildInfoItem(
-                        icon: Icons.location_on_rounded,
-                        title: "Lokasi Kebun",
-                        content: profile['alamat'] ?? 'Belum diisi',
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildInfoItem(
-                        icon: Icons.description_rounded,
-                        title: "Tentang Petani",
-                        content: profile['bio'] ?? 'Belum diisi',
-                        isMultiLine: true,
-                      ),
-                      const SizedBox(height: 16),
-
-                   
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Stats
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3)),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.analytics_rounded,
-                            color: Colors.green[700],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Statistik Prediksi",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatItem(
-                              "Prediksi", "24", Icons.psychology_rounded),
-                          _buildStatItem(
-                              "Sehat", "18", Icons.health_and_safety_rounded),
-                          _buildStatItem(
-                              "Hama", "6", Icons.bug_report_rounded),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Tips
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.green[100]!),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.lightbulb_rounded,
-                            color: Colors.green[700],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Tips Hari Ini",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Periksa daun tomat secara rutin untuk mendeteksi dini serangan hama. Gunakan fitur prediksi kami untuk analisis yang lebih akurat.",
-                        style: TextStyle(
-                          color: Colors.green[800],
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.justify,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // ➤➤ LOGOUT BUTTON (DITAMBAHKAN)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await Supabase.instance.client.auth.signOut();
-                      if (!mounted) return;
-
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, '/login', (route) => false);
-                    },
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => refreshProfile(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[600],
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 14, horizontal: 20),
+                      backgroundColor: const Color(0xFF0D631B),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      "Logout",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text("Buat Profil"),
                   ),
-                ),
+                ],
+              ),
+            );
+          }
 
-                const SizedBox(height: 20),
-              ],
+          final profile = profileSnapshot.data!;
+          final userEmail = Supabase.instance.client.auth.currentUser?.email ?? '';
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              refreshProfile();
+              return Future.value();
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  _buildProfileHeader(profile, userEmail),
+                  const SizedBox(height: 24),
+                  
+                  FutureBuilder<Map<String, int>>(
+                    future: futureStats,
+                    builder: (context, statsSnapshot) {
+                      if (statsSnapshot.connectionState == ConnectionState.waiting) {
+                        return Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFBFCABA), width: 1),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0D631B)),
+                            ),
+                          ),
+                        );
+                      }
+
+                      int totalScan = statsSnapshot.data?['totalScan'] ?? 0;
+                      int sehat = statsSnapshot.data?['sehat'] ?? 0;
+                      int terinfeksi = statsSnapshot.data?['terinfeksi'] ?? 0;
+
+                      return _buildStatsCard(totalScan, sehat, terinfeksi);
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  _buildAccountSettings(),
+                  const SizedBox(height: 16),
+                  
+                  _buildOtherSettings(),
+                  const SizedBox(height: 24),
+                  
+                  _buildAIFooter(),
+                  const SizedBox(height: 20),
+                  
+                  _buildLogoutButton(),
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
           );
         },
       ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavTap,
+      ),
     );
   }
 
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String title,
-    required String content,
-    bool isMultiLine = false,
-  }) {
+  Widget _buildProfileHeader(Map<String, dynamic> profile, String userEmail) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Stack(
+          clipBehavior: Clip.none,
           children: [
-            Icon(
-              icon,
-              color: Colors.green[700],
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green[700],
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    content,
-                    style: TextStyle(
-                      color: content == 'Belum diisi'
-                          ? Colors.grey[400]
-                          : Colors.grey[800],
-                      fontSize: 14,
-                    ),
-                    maxLines: isMultiLine ? 3 : 1,
-                    overflow: TextOverflow.ellipsis,
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF88D982), width: 4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
+              ),
+              child: CircleAvatar(
+                radius: 56,
+                backgroundColor: Colors.white,
+                backgroundImage: profile['foto_profil'] != null && profile['foto_profil'] != ''
+                    ? NetworkImage(profile['foto_profil'])
+                    : null,
+                child: profile['foto_profil'] == null || profile['foto_profil'] == ''
+                    ? Icon(Icons.person_rounded, size: 50, color: const Color(0xFF0D631B))
+                    : null,
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () async {
+                  final result = await Navigator.pushNamed(context, '/edit_profile');
+                  if (result == true) refreshProfile();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2E7D32),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.edit_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
               ),
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        Text(
+          profile['nama_lengkap'] ?? '',
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1B1C1C),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          userEmail,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color(0xFF40493D),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildStatItem(String title, String value, IconData icon) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.1),
-            shape: BoxShape.circle,
+  // STATS CARD BARU DENGAN DESAIN MODERN
+  Widget _buildStatsCard(int totalScan, int sehat, int terinfeksi) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFBFCABA), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          child: Icon(
-            icon,
-            color: Colors.green[700],
-            size: 20,
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Aksen garis melengkung hijau di kiri
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 6,
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D631B),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+              ),
+            ),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // Total Scan
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Total Scan",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF707A6C),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        totalScan.toString(),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0D631B),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      
+                      Container(
+                        width: 40,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0D631B),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Garis pemisah vertikal
+                Container(
+                  width: 1,
+                  height: 50,
+                  color: const Color(0xFFBFCABA),
+                ),
+                
+                // Sehat
+                Expanded(
+                  child: Column(
+                    children: [
+                       const Text(
+                        "Sehat",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF707A6C),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        sehat.toString(),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFF9A825),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                     
+                      Container(
+                        width: 40,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9A825),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Garis pemisah vertikal
+                Container(
+                  width: 1,
+                  height: 50,
+                  color: const Color(0xFFBFCABA),
+                ),
+                
+                // Terinfeksi
+                Expanded(
+                  child: Column(
+                    children: [
+
+                      const Text(
+                        "Terinfeksi",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF707A6C),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        terinfeksi.toString(),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFE53935),
+                        ),
+                      ),
+                      
+                      
+                      const SizedBox(height: 4),
+                      Container(
+                        width: 40,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE53935),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            "PENGATURAN AKUN",
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF707A6C),
+              letterSpacing: 1,
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.green[700],
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
+          child: Column(
+            children: [
+              _buildMenuItem(
+                icon: Icons.person_outline_rounded,
+                title: "Edit Profil",
+                iconColor: const Color(0xFF0D631B),
+                iconBgColor: const Color(0xFF0D631B).withOpacity(0.1),
+                onTap: () async {
+                  final result = await Navigator.pushNamed(context, '/edit_profile');
+                  if (result == true) refreshProfile();
+                },
+              ),
+              const Divider(height: 0, thickness: 0.5, color: Color(0xFFE3E2E2)),
+              _buildMenuItem(
+                icon: Icons.history_rounded,
+                title: "Riwayat Deteksi",
+                iconColor: const Color(0xFFF9A825),
+                iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
+                onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
+              ),
+              const Divider(height: 0, thickness: 0.5, color: Color(0xFFE3E2E2)),
+              _buildMenuItem(
+                icon: Icons.notifications_none_rounded,
+                title: "Notifikasi",
+                iconColor: const Color(0xFFE53935),
+                iconBgColor: const Color(0xFFE53935).withOpacity(0.1),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEC330),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    "3",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6F5100),
+                    ),
+                  ),
+                ),
+                onTap: () {},
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildOtherSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            "LAINNYA",
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF707A6C),
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildMenuItem(
+                icon: Icons.info_outline_rounded,
+                title: "Tentang Aplikasi",
+                iconColor: const Color.fromARGB(255, 18, 18, 18),
+                iconBgColor: const Color.fromARGB(255, 179, 180, 181).withOpacity(0.1),
+                onTap: () {},
+              ),
+              const Divider(height: 0, thickness: 0.5, color: Color(0xFFE3E2E2)),
+              _buildMenuItem(
+                icon: Icons.help_outline_rounded,
+                title: "Bantuan",
+                iconColor: const Color.fromARGB(255, 39, 39, 39),
+                iconBgColor: const Color.fromARGB(255, 156, 155, 156).withOpacity(0.1),
+                onTap: () {},
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required Color iconColor,
+    required Color iconBgColor,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF1B1C1C),
+                ),
+              ),
+            ),
+            trailing ??
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFF707A6C),
+                  size: 22,
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAIFooter() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFDFA0).withOpacity(0.3),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFF8BD2A).withOpacity(0.4)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.smart_toy_rounded, size: 16, color: Color(0xFF795900)),
+              SizedBox(width: 6),
+              Text(
+                "TomatoCare AI v2.4.0",
+                style: TextStyle(fontSize: 11, color: Color(0xFF795900)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          "Terakhir disinkronisasi: 12 menit yang lalu",
+          style: TextStyle(fontSize: 11, color: Color(0xFF707A6C)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return InkWell(
+      onTap: () async {
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text("Konfirmasi Logout"),
+            content: const Text("Apakah Anda yakin ingin keluar?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text("Batal", style: TextStyle(color: Colors.grey[600])),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text("Logout"),
+              ),
+            ],
+          ),
+        );
+
+        if (confirm == true) {
+         
+
+          try {
+            // Proses logout
+            await Supabase.instance.client.auth.signOut();
+            
+            if (!mounted) return;
+            
+            // Tampilkan notifikasi logout berhasil
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white, size: 20),
+                    SizedBox(width: 12),
+                    Text('Berhasil logout dari akun Anda.'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+            
+            // Tunggu sebentar agar notifikasi terlihat
+            await Future.delayed(const Duration(milliseconds: 500));
+            
+            if (!mounted) return;
+            
+            // Navigasi ke halaman login dan hapus semua route sebelumnya
+            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+            
+          } catch (e) {
+            // Tampilkan pesan error jika logout gagal
+            if (!mounted) return;
+            
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text('Gagal logout: ${e.toString().replaceFirst('Exception: ', '')}'),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFDAD6),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.logout_rounded, color: Color(0xFFBA1A1A), size: 20),
+            SizedBox(width: 12),
+            Text(
+              "Keluar",
+              style: TextStyle(
+                color: Color(0xFFBA1A1A),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

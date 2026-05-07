@@ -20,8 +20,9 @@ class HistoryService {
       throw Exception("Upload failed");
     }
 
-    final publicUrl =
-        _supabase.storage.from("history-images").getPublicUrl(fileName);
+    final publicUrl = _supabase.storage
+        .from("history-images")
+        .getPublicUrl(fileName);
     return publicUrl;
   }
 
@@ -32,6 +33,8 @@ class HistoryService {
     required double accuracy,
     required String severity,
     required String recommendation,
+    required String description, // TAMBAHKAN PARAMETER INI
+    required String diseaseName,
   }) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('User not logged in');
@@ -43,6 +46,8 @@ class HistoryService {
       "accuracy": accuracy,
       "severity": severity,
       "recommendation": recommendation,
+      "description": description,
+      "disease_name": diseaseName, // TAMBAHKAN INI
     });
   }
 
@@ -60,5 +65,21 @@ class HistoryService {
     return (response as List)
         .map((item) => HistoryItem.fromJson(item))
         .toList();
+  }
+
+  Future<void> deleteHistory(String id, String imageUrl) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) throw Exception("User not logged in");
+
+    /// 🔥 Ambil path dari URL
+    final uri = Uri.parse(imageUrl);
+    final filePath = uri.pathSegments.sublist(2).join('/');
+    // biasanya hasil: user_id/namafile.jpg
+
+    /// 🔥 Hapus file dari storage
+    await _supabase.storage.from('history-images').remove([filePath]);
+
+    /// 🔥 Hapus data dari table
+    await _supabase.from('history').delete().eq('id', id);
   }
 }

@@ -1,9 +1,7 @@
+// lib/screen/home_page.dart
 import 'package:flutter/material.dart';
-import 'package:testing_aplikasi/screen/authentication/user_profile_screen.dart';
-import 'package:testing_aplikasi/screen/history_page.dart';
-import 'prediction_page.dart';
-import 'pustaka_penyakit_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../widgets/bottom_nav_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,779 +13,938 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomeContent(),
-    const PustakaPenyakitPage(),
-    HistoryPage(),
-    const UserProfileScreen(),
-  ];
+  // Variabel untuk menyimpan data profil
+  Map<String, dynamic>? _userProfile;
+  String _userEmail = '';
+  bool _isLoadingProfile = true;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.green[50],
-      body: _pages[_currentIndex],
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _buildFloatingActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
-  }
-  
+  // Variabel untuk menyimpan data history
+  List<Map<String, dynamic>> _recentHistory = [];
+  int _totalScans = 0;
+  int _issuesFound = 0;
+  bool _isLoadingHistory = true;
 
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.green[700],
-          unselectedItemColor: Colors.grey[600],
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
-          elevation: 0,
-          items: _buildBottomNavItems(),
-        ),
-      ),
-    );
-  }
-
-  List<BottomNavigationBarItem> _buildBottomNavItems() {
-    return [
-      _buildBottomNavItem(Icons.home_rounded, Icons.home_outlined, 'Home', 0),
-      _buildBottomNavItem(
-        Icons.menu_book_rounded,
-        Icons.menu_book_outlined,
-        'Pustaka',
-        1,
-      ),
-      _buildBottomNavItem(
-        Icons.history_rounded,
-        Icons.history_outlined,
-        'History',
-        2,
-      ),
-      _buildBottomNavItem(
-        Icons.person_rounded,
-        Icons.person_outlined,
-        'Profile',
-        3,
-      ),
-    ];
-  }
-
-  BottomNavigationBarItem _buildBottomNavItem(
-    IconData activeIcon,
-    IconData inactiveIcon,
-    String label,
-    int index,
-  ) {
-    return BottomNavigationBarItem(
-      icon: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: _currentIndex == index ? Colors.green[50] : Colors.transparent,
-        ),
-        child: Icon(
-          _currentIndex == index ? activeIcon : inactiveIcon,
-          size: 24,
-        ),
-      ),
-      label: label,
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return Container(
-      margin: const EdgeInsets.only(top: 20),
-      child: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PredictionPage()),
-          );
-        },
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.white,
-        elevation: 8,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Stack(
-          children: [
-            Icon(Icons.camera_alt_rounded, size: 30),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 6,
-                child: Icon(Icons.eco_rounded, size: 8, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class HomeContent extends StatefulWidget {
-  const HomeContent({super.key});
-
-  @override
-  State<HomeContent> createState() => _HomeContentState();
-}
-
-class _HomeContentState extends State<HomeContent> {
-  String namaLengkap = "PlantLover";
-  bool loading = true;
+  // Responsive variables
+  late double _screenWidth;
+  late double _screenHeight;
+  late double _paddingHorizontal;
+  late double _cardWidth;
 
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    _loadUserProfile();
+    _loadHistoryData();
   }
 
-  Future<void> _loadUserName() async {
+  // Fungsi untuk mengambil data profil dari Supabase
+  Future<void> _loadUserProfile() async {
+    setState(() {
+      _isLoadingProfile = true;
+    });
+
     try {
       final user = Supabase.instance.client.auth.currentUser;
+
       if (user != null) {
-        final data = await Supabase.instance.client
+        _userEmail = user.email ?? '';
+
+        final response = await Supabase.instance.client
             .from('user_profiles')
-            .select('nama_lengkap')
+            .select()
             .eq('user_id', user.id)
             .maybeSingle();
 
-        if (mounted) {
+        if (response != null) {
           setState(() {
-            namaLengkap = data?['nama_lengkap'] ?? "PlantLover";
-            loading = false;
+            _userProfile = response as Map<String, dynamic>;
           });
-        }
-      } else {
-        if (mounted) {
-          setState(() => loading = false);
+        } else {
+          await _createDefaultProfile(user.id);
         }
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => loading = false);
+      print('Error loading profile: $e');
+    } finally {
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  // Fungsi untuk membuat profil default
+  Future<void> _createDefaultProfile(String userId) async {
+    try {
+      final newProfile = await Supabase.instance.client
+          .from('user_profiles')
+          .insert({
+            'user_id': userId,
+            'nama_lengkap': 'Petani Tomat',
+            'alamat': '',
+            'bio': '',
+            'foto_profil': '',
+          })
+          .select()
+          .single();
+
+      setState(() {
+        _userProfile = newProfile as Map<String, dynamic>;
+      });
+    } catch (e) {
+      print('Error creating default profile: $e');
+      setState(() {
+        _userProfile = {
+          'nama_lengkap': 'Petani Tomat',
+          'alamat': '',
+          'bio': '',
+          'foto_profil': '',
+        };
+      });
+    }
+  }
+
+  // Fungsi untuk mengambil data history dari Supabase
+  Future<void> _loadHistoryData() async {
+    setState(() {
+      _isLoadingHistory = true;
+    });
+
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+
+      if (user != null) {
+        final response = await Supabase.instance.client
+            .from('history')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', ascending: false);
+
+        if (response != null && response.isNotEmpty) {
+          final List<dynamic> historyData = response;
+
+          _totalScans = historyData.length;
+
+          // 🔥 HITUNG ISSUES: label tetap dipakai untuk logika internal
+          _issuesFound = historyData.where((item) {
+            final label = item['label']?.toString().toLowerCase() ?? '';
+            return label != 'healthy' && label != 'sehat' && label != 'good';
+          }).length;
+
+          // 🔥 TAMPILAN: HANYA gunakan disease_name
+          _recentHistory = historyData.take(4).map((item) {
+            final imageUrl = item['image_url']?.toString() ?? '';
+            print('Image URL: $imageUrl');
+
+            // 🔥 HANYA gunakan disease_name untuk tampilan
+            final displayName =
+                item['disease_name']?.toString() ?? 'Tanaman Tidak Dikenal';
+
+            // 🔥 Status tetap menggunakan label untuk akurasi logika
+            final labelForStatus = item['label']?.toString() ?? '';
+
+            return {
+              'id': item['id'],
+              'plantName': displayName, // 🔥 HANYA disease_name
+              'status': _getStatusLabel(labelForStatus), // Logika internal
+              'statusColor': _getStatusColor(labelForStatus), // Logika internal
+              'time': _formatDate(item['created_at']),
+              'imageUrl': imageUrl,
+              'accuracy': item['accuracy'],
+              'severity': item['severity'],
+            };
+          }).toList();
+        } else {
+          _totalScans = 0;
+          _issuesFound = 0;
+          _recentHistory = [];
+        }
       }
+    } catch (e) {
+      print('Error loading history: $e');
+      setState(() {
+        _totalScans = 0;
+        _issuesFound = 0;
+        _recentHistory = [];
+      });
+    } finally {
+      setState(() {
+        _isLoadingHistory = false;
+      });
+    }
+  }
+
+  // Helper: Mendapatkan label status (LOGIKA INTERNAL, tidak tampil ke user)
+ // Helper: Mendapatkan label status - SESUAI 11 LABEL
+String _getStatusLabel(String label) {
+  final lowerLabel = label.toLowerCase().trim();
+  
+  // ========== SEHAT ==========
+  if (lowerLabel == 'healthy') {
+    return 'Sehat';
+  }
+  
+  // ========== PENYAKIT JAMUR (FUNGI) ==========
+  if (lowerLabel == 'late_blight' ||
+      lowerLabel == 'early_blight' ||
+      lowerLabel == 'leaf_mold' ||
+      lowerLabel == 'septoria_leaf_spot' ||
+      lowerLabel == 'target_spot' ||
+      lowerLabel == 'powdery_mildew') {
+    return 'Penyakit Jamur';
+  }
+  
+  // ========== INFEKSI VIRUS ==========
+  if (lowerLabel == 'tomato_yellow_leaf_curl_virus' ||
+      lowerLabel == 'tomato_mosaic_virus') {
+    return 'Infeksi Virus';
+  }
+  
+  // ========== INFEKSI BAKTERI ==========
+  if (lowerLabel == 'bacterial_spot') {
+    return 'Infeksi Bakteri';
+  }
+  
+  // ========== HAMA (PEST) ==========
+  if (lowerLabel == 'spider_mites two-spotted_spider_mite' ||
+      lowerLabel.contains('spider_mites') ||
+      lowerLabel.contains('spider mite')) {
+    return 'Serangan Hama';
+  }
+  
+  // ========== DEFAULT ==========
+  return 'Penyakit Lain';
+}
+
+  // Helper: Mendapatkan warna status - SESUAI 11 LABEL
+Color _getStatusColor(String label) {
+  final lowerLabel = label.toLowerCase().trim();
+  
+  // ========== SEHAT - Hijau ==========
+  if (lowerLabel == 'healthy') {
+    return const Color(0xFF506600);
+  }
+  
+  // ========== PENYAKIT JAMUR - Merah ==========
+  if (lowerLabel == 'late_blight' ||
+      lowerLabel == 'early_blight' ||
+      lowerLabel == 'leaf_mold' ||
+      lowerLabel == 'septoria_leaf_spot' ||
+      lowerLabel == 'target_spot' ||
+      lowerLabel == 'powdery_mildew') {
+    return const Color(0xFFBA1A1A);
+  }
+  
+  // ========== INFEKSI VIRUS - Ungu ==========
+  if (lowerLabel == 'tomato_yellow_leaf_curl_virus' ||
+      lowerLabel == 'tomato_mosaic_virus') {
+    return const Color(0xFF7B1FA2);
+  }
+  
+  // ========== INFEKSI BAKTERI - Oranye ==========
+  if (lowerLabel == 'bacterial_spot') {
+    return const Color(0xFFE65100);
+  }
+  
+  // ========== HAMA - Jingga ==========
+  if (lowerLabel == 'spider_mites two-spotted_spider_mite' ||
+      lowerLabel.contains('spider_mites') ||
+      lowerLabel.contains('spider mite')) {
+    return const Color(0xFFB85C00);
+  }
+  
+  // ========== DEFAULT - Abu-abu ==========
+  return const Color(0xFF727972);
+}
+
+
+  // Helper: Format tanggal
+  String _formatDate(String? dateTimeString) {
+    if (dateTimeString == null) return 'Unknown date';
+
+    try {
+      final dateTime = DateTime.parse(dateTimeString);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays == 0) {
+        if (difference.inHours == 0) {
+          if (difference.inMinutes == 0) {
+            return 'Just now';
+          }
+          return '${difference.inMinutes}m ago';
+        }
+        return 'Today ${_formatTime(dateTime)}';
+      } else if (difference.inDays == 1) {
+        return 'Yesterday ${_formatTime(dateTime)}';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays}d ago';
+      } else {
+        return '${dateTime.day}/${dateTime.month}';
+      }
+    } catch (e) {
+      return dateTimeString;
+    }
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  // Fungsi untuk refresh data
+  Future<void> _onRefresh() async {
+    await _loadUserProfile();
+    await _loadHistoryData();
+  }
+
+  // Fungsi untuk handle navigasi bottom bar
+  void _onNavTap(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/info').then((_) {
+          _loadHistoryData();
+        });
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/scan').then((_) {
+          _loadHistoryData();
+        });
+        break;
+      case 3:
+        Navigator.pushNamed(context, '/HistoryPage').then((_) {
+          _loadHistoryData();
+        });
+        break;
+      case 4:
+        Navigator.pushNamed(context, '/profil').then((_) {
+          _loadUserProfile();
+        });
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.green[50],
-      body: loading ? _buildLoadingIndicator() : _buildContent(),
-    );
-  }
+    // Hitung responsive values
+    _screenWidth = MediaQuery.of(context).size.width;
+    _screenHeight = MediaQuery.of(context).size.height;
+    _paddingHorizontal = _screenWidth < 600 ? 16 : 24;
+    _cardWidth = _screenWidth * 0.75;
 
-  Widget _buildLoadingIndicator() {
-    return const Center(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAF8),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopAppBar(),
+
+            // Main Content
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: _paddingHorizontal),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: _screenHeight * 0.02),
+
+                      _buildHeroSection(),
+                      SizedBox(height: _screenHeight * 0.04),
+
+                      _buildStatsGrid(),
+                      SizedBox(height: _screenHeight * 0.04),
+
+                      _buildRecentActivitySection(),
+                      SizedBox(height: _screenHeight * 0.08),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavTap,
       ),
     );
   }
 
-  Widget _buildContent() {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        _buildHeaderSliver(),
-        _buildStatsSection(),
-        _buildPredictionStatsSection(),
-        _buildTipsSection(), // Diubah dari _buildTipsAndWeatherSection()
-      ],
+  // Top App Bar - Responsive
+  Widget _buildTopAppBar() {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: _paddingHorizontal,
+        vertical: 16,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/profil').then((_) {
+                _loadUserProfile();
+              });
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: _screenWidth < 600 ? 50 : 55,
+                  height: _screenWidth < 600 ? 50 : 55,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFADCFB5),
+                      width: 2.5,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.green,
+                    backgroundImage:
+                        _userProfile != null &&
+                            _userProfile!['foto_profil'] != null &&
+                            _userProfile!['foto_profil'] != ''
+                        ? NetworkImage(_userProfile!['foto_profil'])
+                        : null,
+                    child:
+                        _userProfile == null ||
+                            _userProfile!['foto_profil'] == null ||
+                            _userProfile!['foto_profil'] == ''
+                        ? Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: _screenWidth < 600 ? 28 : 32,
+                          )
+                        : null,
+                  ),
+                ),
+                SizedBox(width: _screenWidth < 600 ? 14 : 18),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome back,',
+                      style: TextStyle(
+                        fontSize: _screenWidth < 600 ? 13 : 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    if (_isLoadingProfile)
+                      Container(
+                        width: _screenWidth < 600 ? 100 : 120,
+                        height: _screenWidth < 600 ? 16 : 18,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        width: _screenWidth < 600 ? 150 : 180,
+                        child: Text(
+                          _userProfile?['nama_lengkap'] ?? 'Petani Tomat',
+                          style: TextStyle(
+                            fontSize: _screenWidth < 600 ? 16 : 18,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF191C1B),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            width: _screenWidth < 600 ? 44 : 48,
+            height: _screenWidth < 600 ? 44 : 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.grey[50],
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.notifications_none,
+                color: Colors.grey[600],
+                size: _screenWidth < 600 ? 24 : 28,
+              ),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Fitur notifikasi sedang dalam pengembangan'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  SliverAppBar _buildHeaderSliver() {
-    return SliverAppBar(
-      expandedHeight: 280,
-      collapsedHeight: 100,
-      floating: false,
-      pinned: true,
-      backgroundColor: Colors.transparent,
-      flexibleSpace: FlexibleSpaceBar(background: _buildHeader()),
-    );
-  }
-
-  Widget _buildHeader() {
+  // Hero Section
+  Widget _buildHeroSection() {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.green[800]!,
-            Colors.green[600]!,
-            Colors.lightGreen[400]!,
-          ],
+          colors: const [Color(0xFF163321), Color(0xFF2A4D37)],
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
+        borderRadius: BorderRadius.circular(_screenWidth < 600 ? 28 : 36),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.4),
-            blurRadius: 25,
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Stack(
-        children: [_buildBackgroundPattern(), _buildHeaderContent()],
-      ),
-    );
-  }
-
-  Widget _buildBackgroundPattern() {
-    return Stack(
-      children: [
-        Positioned(
-          right: -50,
-          top: -50,
-          child: Container(
-            width: 200,
-            height: 200,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-        Positioned(
-          left: -30,
-          bottom: -30,
-          child: Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderContent() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 60, 25, 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildUserGreeting(),
-          const SizedBox(height: 25),
-          _buildBrandCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUserGreeting() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.eco_rounded,
-                    color: Colors.white.withOpacity(0.9),
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Hai, Selamat Datang!",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                namaLengkap,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.2,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        _buildNotificationIcon(),
-      ],
-    );
-  }
-
-  Widget _buildNotificationIcon() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(14),
-      child: const Icon(
-        Icons.notifications_outlined,
-        color: Colors.white,
-        size: 24,
-      ),
-    );
-  }
-
-  Widget _buildBrandCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.9),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.eco_rounded, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
+          Padding(
+            padding: EdgeInsets.all(_screenWidth < 600 ? 28 : 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "TomatoCare",
+                Text(
+                  'Identify crop health in seconds.',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: _screenWidth < 600 ? 28 : 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    letterSpacing: -0.5,
+                    height: 1.3,
                   ),
+                  softWrap: true,
                 ),
+                SizedBox(height: _screenWidth < 600 ? 16 : 20),
                 Text(
-                  "Deteksi hama tomat dengan AI",
+                  'Point your camera at \nany plant to detect\n pests, diseases, or \nnutrient deficiencies.',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
+                    fontSize: _screenWidth < 600 ? 16 : 18,
+                    color: Colors.white.withOpacity(0.85),
+                    height: 1.5,
+                  ),
+                  softWrap: true,
+                ),
+                SizedBox(height: _screenWidth < 600 ? 32 : 40),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/prediction');
+                  },
+                  icon: Icon(
+                    Icons.center_focus_strong,
+                    size: _screenWidth < 600 ? 24 : 28,
+                  ),
+                  label: Text(
+                    'Scan \nNow',
+                    style: TextStyle(
+                      fontSize: _screenWidth < 600 ? 18 : 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFC1F100),
+                    foregroundColor: const Color(0xFF546B00),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: _screenWidth < 600 ? 28 : 32,
+                      vertical: _screenWidth < 600 ? 16 : 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        _screenWidth < 600 ? 18 : 22,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: _screenWidth * 0.35,
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.only(right: _screenWidth < 600 ? 24 : 32),
+              child: Opacity(
+                opacity: 0.12,
+                child: Icon(
+                  Icons.grass,
+                  size: _screenWidth < 600 ? 140 : 180,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  SliverToBoxAdapter _buildStatsSection() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 20, 25, 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle(
-              icon: Icons.analytics_rounded,
-              title: "Statistik Sistem",
-              subtitle: "Informasi performa dan keandalan aplikasi",
-            ),
-            const SizedBox(height: 10),
-            _buildStatsGrid(),
-          ],
-        ),
+  // Stats Grid
+  Widget _buildStatsGrid() {
+    final stats = [
+      {
+        'icon': Icons.local_florist,
+        'iconColor': const Color(0xFF506600),
+        'label': 'Total Scans',
+        'value': _isLoadingHistory ? '...' : '$_totalScans',
+      },
+      {
+        'icon': Icons.warning,
+        'iconColor': const Color(0xFFBA1A1A),
+        'label': 'Issues Found',
+        'value': _isLoadingHistory ? '...' : '$_issuesFound',
+      },
+    ];
+
+    final isSmallScreen = _screenWidth < 600;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isSmallScreen ? 2 : 4,
+        childAspectRatio: isSmallScreen ? 1.4 : 1.6,
+        crossAxisSpacing: isSmallScreen ? 12 : 16,
+        mainAxisSpacing: isSmallScreen ? 12 : 16,
       ),
+      itemCount: stats.length,
+      itemBuilder: (context, index) {
+        final stat = stats[index];
+
+        return Container(
+          padding: EdgeInsets.all(isSmallScreen ? 14 : 18),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF2F4F2),
+            borderRadius: BorderRadius.circular(isSmallScreen ? 18 : 22),
+            border: Border.all(color: const Color(0xFFC2C8C1).withOpacity(0.3)),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    stat['icon'] as IconData,
+                    color: stat['iconColor'] as Color,
+                    size: constraints.maxHeight * 0.25,
+                  ),
+                  Text(
+                    stat['label'] as String,
+                    style: TextStyle(
+                      fontSize: constraints.maxHeight * 0.12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      stat['value'] as String,
+                      style: TextStyle(
+                        fontSize: constraints.maxHeight * 0.28,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF191C1B),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  SliverToBoxAdapter _buildPredictionStatsSection() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle(
-              icon: Icons.bar_chart_rounded,
-              title: "Statistik Prediksi",
-              subtitle: "Data hasil prediksi tanaman tomat",
-            ),
-            const SizedBox(height: 20),
-            _buildSinglePredictionCard(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
+  // Recent Activity Section
+  Widget _buildRecentActivitySection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.green[700], size: 20),
-            const SizedBox(width: 8),
             Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
+              'Recent Activity',
+              style: TextStyle(
+                fontSize: _screenWidth < 600 ? 20 : 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: const Color(0xFF191C1B),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/HistoryPage').then((_) {
+                  _loadHistoryData();
+                });
+              },
+              child: Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: _screenWidth < 600 ? 13 : 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF304D39),
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        SizedBox(height: _screenWidth < 600 ? 16 : 20),
+
+        if (_isLoadingHistory)
+          Center(
+            child: Padding(
+              padding: EdgeInsets.all(_screenWidth < 600 ? 24 : 32),
+              child: CircularProgressIndicator(
+                color: const Color(0xFF163321),
+                strokeWidth: _screenWidth < 600 ? 3 : 4,
+              ),
+            ),
+          )
+        else if (_recentHistory.isEmpty)
+          Container(
+            padding: EdgeInsets.all(_screenWidth < 600 ? 24 : 32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(_screenWidth < 600 ? 20 : 24),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.history,
+                  size: _screenWidth < 600 ? 48 : 56,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: _screenWidth < 600 ? 12 : 16),
+                Text(
+                  'No scan history yet',
+                  style: TextStyle(
+                    fontSize: _screenWidth < 600 ? 15 : 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: _screenWidth < 600 ? 6 : 10),
+                Text(
+                  'Start scanning to see your activity',
+                  style: TextStyle(
+                    fontSize: _screenWidth < 600 ? 13 : 14,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          SizedBox(
+            height: _screenWidth < 600 ? 280 : 300,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _recentHistory.length,
+              separatorBuilder: (context, index) =>
+                  SizedBox(width: _screenWidth < 600 ? 12 : 16),
+              itemBuilder: (context, index) {
+                final activity = _recentHistory[index];
+                return SizedBox(
+                  width: _cardWidth,
+                  child: _buildActivityCard(activity),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildStatsGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 15,
-      mainAxisSpacing: 15,
-      childAspectRatio: 1.4,
-      children: [
-        _buildStatCard(
-          value: "95%",
-          label: "Akurasi Sistem",
-          icon: Icons.verified_rounded,
-          color: Colors.green,
-        ),
-        _buildStatCard(
-          value: "5 Detik",
-          label: "Waktu Proses",
-          icon: Icons.speed_rounded,
-          color: Colors.blue,
-        ),
-      ],
-    );
-  }
+  // Activity Card
+  Widget _buildActivityCard(Map<String, dynamic> activity) {
+    final isSmallScreen = _screenWidth < 600;
+    final imageUrl = activity['imageUrl']?.toString() ?? '';
+    final hasImage = imageUrl.isNotEmpty;
+    final statusColor = activity['statusColor'] as Color;
 
-  // // fungsi menghitung untuk statistik prediksi
-Future<Map<String, int>> getPredictionStats() async {
-  final user = Supabase.instance.client.auth.currentUser;
-
-  if (user == null) {
-    return {
-      'total': 0,
-      'sehat': 0,
-      'hama': 0,
-    };
-  }
-
-  final response = await Supabase.instance.client
-      .from('history')
-      .select('label')
-      .eq('user_id', user.id);
-
-  final int total = response.length;
-
-  final int sehat = response.where((e) {
-    final label = e['label']?.toString().toLowerCase().trim();
-    return label == 'healthy';
-  }).length;
-
-  final int hama = total - sehat;
-
-  return {
-    'total': total,
-    'sehat': sehat,
-    'hama': hama,
-  };
-}
-
-// Kartu tunggal untuk statistik prediksi
-Widget _buildSinglePredictionCard() {
-  return FutureBuilder<Map<String, int>>(
-    future: getPredictionStats(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-
-      if (!snapshot.hasData) {
-        return const SizedBox();
-      }
-
-      final data = snapshot.data!;
-      final int total = data['total']!;
-      final int sehat = data['sehat']!;
-      final int hama = data['hama']!;
-
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            // Total
-            _buildPredictionRow(
-              icon: Icons.photo_library_rounded,
-              iconColor: Colors.purple,
-              title: "Total Prediksi",
-              value: total.toString(),
-              valueColor: Colors.purple,
-            ),
-            const SizedBox(height: 15),
-
-            // Sehat
-            _buildPredictionRow(
-              icon: Icons.health_and_safety_rounded,
-              iconColor: Colors.green,
-              title: "Prediksi Sehat",
-              value: sehat.toString(),
-              valueColor: Colors.green,
-            ),
-            const SizedBox(height: 15),
-
-            // Hama
-            _buildPredictionRow(
-              icon: Icons.bug_report_rounded,
-              iconColor: Colors.orange,
-              title: "Prediksi Hama",
-              value: hama.toString(),
-              valueColor: Colors.orange,
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-
-  // Widget untuk setiap baris statistik prediksi
-  Widget _buildPredictionRow({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String value,
-    required Color valueColor,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: iconColor, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: valueColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard({
-    required String value,
-    required String label,
-    required IconData icon,
-    required Color color,
-  }) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 20 : 24),
+        border: Border.all(color: Colors.grey[100]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          // Image section
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(isSmallScreen ? 20 : 24),
+              topRight: Radius.circular(isSmallScreen ? 20 : 24),
+            ),
+            child: Container(
+              height: isSmallScreen ? 160 : 180,
+              width: double.infinity,
+              color: statusColor.withOpacity(0.15),
+              child: hasImage
+                  ? Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                    : null,
+                                strokeWidth: 2,
+                                color: statusColor,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return _buildImagePlaceholder(
+                              activity,
+                              isSmallScreen,
+                            );
+                          },
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.3),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: isSmallScreen ? 12 : 16,
+                          left: isSmallScreen ? 12 : 16,
+                          child: _buildStatusBadge(activity, isSmallScreen),
+                        ),
+                        if (activity['accuracy'] != null)
+                          Positioned(
+                            top: isSmallScreen ? 12 : 16,
+                            right: isSmallScreen ? 12 : 16,
+                            child: _buildAccuracyBadge(activity, isSmallScreen),
+                          ),
+                      ],
+                    )
+                  : _buildImagePlaceholder(activity, isSmallScreen),
             ),
           ),
-          const SizedBox(height: 1),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // DIUBAH: Hanya menampilkan Tips Card saja
-  SliverToBoxAdapter _buildTipsSection() {
-    return SliverToBoxAdapter(
-      child: Column(
-        children: [
-          _buildTipsCard(),
-          const SizedBox(height: 30), // Tambah spacing di bagian bawah
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTipsCard() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.lightGreen[100]!, Colors.green[100]!],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.psychology_rounded,
-              color: Colors.green,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
+          // Content
+          Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 14 : 18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  "Tips Hari Ini",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-                const SizedBox(height: 5),
+                // 🔥 HANYA menampilkan disease_name (plantName)
                 Text(
-                  "Pastikan sirkulasi udara baik dan hindari penyiraman berlebihan pada daun tomat. Periksa tanaman secara rutin untuk mendeteksi gejala penyakit sejak dini.",
+                  activity['plantName'] as String,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.green[800],
-                    height: 1.4,
+                    fontSize: isSmallScreen ? 15 : 16,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF191C1B),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                SizedBox(height: isSmallScreen ? 4 : 6),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: isSmallScreen ? 12 : 14,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(width: isSmallScreen ? 4 : 6),
+                    Expanded(
+                      child: Text(
+                        activity['time'] as String,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 12 : 13,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (activity['severity'] != null &&
+                    activity['severity'].toString().isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: isSmallScreen ? 8 : 10),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 8 : 10,
+                        vertical: isSmallScreen ? 4 : 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          isSmallScreen ? 8 : 10,
+                        ),
+                      ),
+                      child: Text(
+                        'Severity: ${activity['severity']}',
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 11 : 12,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -795,87 +952,131 @@ Widget _buildSinglePredictionCard() {
       ),
     );
   }
-}
 
-class PlaceholderPage extends StatelessWidget {
-  final String title;
+  // Widget untuk status badge
+  Widget _buildStatusBadge(Map<String, dynamic> activity, bool isSmallScreen) {
+    final statusColor = activity['statusColor'] as Color;
+    final status = activity['status'] as String;
 
-  const PlaceholderPage({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.green[50],
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Colors.green[400]!, Colors.green[600]!],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Icon(_getIcon(title), size: 60, color: Colors.white),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 10 : 14,
+        vertical: isSmallScreen ? 6 : 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 20 : 24),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            status == 'Healthy'
+                ? Icons.check_circle
+                : status == 'Late Blight'
+                ? Icons.report
+                : Icons.error,
+            size: isSmallScreen ? 14 : 16,
+            color: statusColor,
+          ),
+          SizedBox(width: isSmallScreen ? 4 : 6),
+          Text(
+            status,
+            style: TextStyle(
+              fontSize: isSmallScreen ? 12 : 14,
+              fontWeight: FontWeight.w700,
+              color: statusColor,
             ),
-            const SizedBox(height: 30),
-            Text(
-              "Halaman $title",
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                _getDescription(title),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  IconData _getIcon(String title) {
-    switch (title) {
-      case "History":
-        return Icons.history_rounded;
-      case "Profile":
-        return Icons.person_rounded;
-      default:
-        return Icons.menu_book_rounded;
-    }
+  // Widget untuk accuracy badge
+  Widget _buildAccuracyBadge(
+    Map<String, dynamic> activity,
+    bool isSmallScreen,
+  ) {
+    final accuracy = (activity['accuracy'] as num?)?.toDouble();
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 10 : 14,
+        vertical: isSmallScreen ? 6 : 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 20 : 24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.auto_awesome,
+            size: isSmallScreen ? 12 : 14,
+            color: const Color(0xFF71A166),
+          ),
+          SizedBox(width: isSmallScreen ? 4 : 6),
+          Text(
+            '${accuracy?.toStringAsFixed(1)}%',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 12 : 13,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF71A166),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  String _getDescription(String title) {
-    switch (title) {
-      case "History":
-        return "Lihat riwayat scan dan hasil deteksi penyakit tanaman tomat Anda sebelumnya";
-      case "Profile":
-        return "Kelola profil dan pengaturan akun TomatoCare Anda";
-      default:
-        return "Jelajahi pustaka informasi tentang berbagai penyakit tanaman tomat";
-    }
+  // Widget placeholder ketika gambar tidak tersedia
+  Widget _buildImagePlaceholder(
+    Map<String, dynamic> activity,
+    bool isSmallScreen,
+  ) {
+    final statusColor = activity['statusColor'] as Color;
+
+    return Stack(
+      children: [
+        Container(color: statusColor.withOpacity(0.15)),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.agriculture_rounded,
+                size: isSmallScreen ? 60 : 70,
+                color: statusColor.withOpacity(0.5),
+              ),
+              SizedBox(height: isSmallScreen ? 6 : 10),
+              Text(
+                'No Image',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 12 : 14,
+                  color: statusColor.withOpacity(0.5),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: isSmallScreen ? 12 : 16,
+          left: isSmallScreen ? 12 : 16,
+          child: _buildStatusBadge(activity, isSmallScreen),
+        ),
+        if (activity['accuracy'] != null)
+          Positioned(
+            top: isSmallScreen ? 12 : 16,
+            right: isSmallScreen ? 12 : 16,
+            child: _buildAccuracyBadge(activity, isSmallScreen),
+          ),
+      ],
+    );
   }
 }

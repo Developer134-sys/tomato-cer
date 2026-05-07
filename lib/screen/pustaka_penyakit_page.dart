@@ -1,46 +1,197 @@
+// lib/screen/pustaka_penyakit_page.dart
 import 'package:flutter/material.dart';
 import '../models/disease_model.dart';
 import '../data/disease_data.dart';
 import '../screen/disease_detail_page.dart';
+import '../widgets/bottom_nav_bar.dart';
 
-class PustakaPenyakitPage extends StatelessWidget {
+class PustakaPenyakitPage extends StatefulWidget {
   const PustakaPenyakitPage({super.key});
+
+  @override
+  State<PustakaPenyakitPage> createState() => _PustakaPenyakitPageState();
+}
+
+class _PustakaPenyakitPageState extends State<PustakaPenyakitPage> {
+  int _currentIndex = 1; // Index 1 untuk halaman Pustaka
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<DiseaseInfo> get _filteredDiseases {
+    final diseases = DiseaseData.getDiseases();
+    if (_searchQuery.isEmpty) return diseases;
+    return diseases
+        .where(
+          (disease) =>
+              disease.title.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ||
+              disease.description.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ),
+        )
+        .toList();
+  }
+
+  void _onNavTap(int index) {
+    if (_currentIndex == index) return;
+
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // Navigasi ke halaman yang berbeda
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        // Halaman saat ini
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/scanner');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/HistoryPage');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profil');
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "📚 Pustaka Penyakit Tanaman",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+      body: CustomScrollView(
+        slivers: [
+          // Modern SliverAppBar
+          SliverAppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            pinned: true,
+            automaticallyImplyLeading: false, // 👈 INI PENTING
+
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                color: Colors.green.shade600,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.shade200.withOpacity(0.5),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: FlexibleSpaceBar(
+                centerTitle: true, // 👈 INI
+                titlePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                title: const Text(
+                  "Pustaka Penyakit",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
+          // Search Bar Sliver
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.all(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Cari penyakit tanaman...',
+                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.green.shade600,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.grey.shade400,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Content
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [_buildHeader(), const SizedBox(height: 24)],
+              ),
+            ),
+          ),
+
+          // Daftar Penyakit
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final disease = _filteredDiseases[index];
+              return _buildModernCard(context, disease);
+            }, childCount: _filteredDiseases.length),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.green.shade50,
-              Colors.white,
-            ],
-          ),
-        ),
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 16),
-            ..._buildDiseaseCards(context),
-          ],
-        ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavTap,
       ),
     );
   }
@@ -49,15 +200,20 @@ class PustakaPenyakitPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Colors.green.shade50],
+        ),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.green.shade100,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
+        border: Border.all(color: Colors.green.shade100, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,56 +221,65 @@ class PustakaPenyakitPage extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade100,
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade600, Colors.green.shade400],
+                  ),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.medical_services,
-                  color: Colors.green,
+                  color: Colors.white,
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Text(
-                "Lengkap Penyakit Tanaman",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Text(
+                  "Lengkap Penyakit Tanaman",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF163321),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
-            "Temukan informasi lengkap tentang berbagai penyakit tanaman tomat beserta cara identifikasi dan pengendaliannya",
+            "Temukan informasi lengkap tentang berbagai penyakit tanaman beserta cara identifikasi dan pengendaliannya",
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade600,
-              height: 1.4,
+              color: Colors.grey.shade700,
+              height: 1.5,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.shade100),
+              gradient: LinearGradient(
+                colors: [Colors.orange.shade50, Colors.orange.shade100],
+              ),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.info, color: Colors.orange.shade600, size: 16),
-                const SizedBox(width: 6),
+                Icon(
+                  Icons.info_outline,
+                  color: Colors.orange.shade700,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
                 Text(
-                  "${DiseaseData.getDiseases().length} penyakit tercatat",
+                  "${_filteredDiseases.length} penyakit tercatat",
                   style: TextStyle(
-                    color: Colors.orange.shade700,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    color: Colors.orange.shade800,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -125,65 +290,62 @@ class PustakaPenyakitPage extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildDiseaseCards(BuildContext context) {
-    final diseases = DiseaseData.getDiseases();
-
-    return diseases
-        .map((disease) => _buildModernCard(context, disease))
-        .toList();
-  }
-
   Widget _buildModernCard(BuildContext context, DiseaseInfo disease) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => DiseaseDetailPage(disease: disease),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Material(
-          elevation: 3,
-          borderRadius: BorderRadius.circular(16),
-          shadowColor: Colors.green.shade100,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Material(
+        elevation: 0,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DiseaseDetailPage(disease: disease),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(24),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.green.shade100,
-                width: 1,
-              ),
+              borderRadius: BorderRadius.circular(24),
               color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade200,
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Icon Container
+                  // Animated Icon Container
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
-                      color: disease.color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          disease.color.withOpacity(0.2),
+                          disease.color.withOpacity(0.1),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: disease.color.withOpacity(0.3),
                         width: 1.5,
                       ),
                     ),
-                    child: Icon(
-                      disease.icon,
-                      color: disease.color,
-                      size: 24,
-                    ),
+                    child: Icon(disease.icon, color: disease.color, size: 30),
                   ),
                   const SizedBox(width: 16),
 
-                  // Text Content
+                  // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,51 +353,75 @@ class PustakaPenyakitPage extends StatelessWidget {
                         Text(
                           disease.title,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: disease.color,
+                            letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           disease.description,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: Colors.grey.shade600,
                             height: 1.4,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                disease.color.withOpacity(0.1),
+                                disease.color.withOpacity(0.05),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.play_arrow_rounded,
+                                color: disease.color,
+                                size: 16,
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
+                              const SizedBox(width: 4),
+                              Text(
                                 "Pelajari Detail",
                                 style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.green.shade700,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: disease.color,
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
 
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey,
-                    size: 20,
+                  // Arrow Icon
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: disease.color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_rounded,
+                      color: disease.color,
+                      size: 18,
+                    ),
                   ),
                 ],
               ),
