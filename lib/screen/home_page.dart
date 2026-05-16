@@ -442,9 +442,9 @@ Color _getStatusColor(String label) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back,',
+                      'Hai👋',
                       style: TextStyle(
-                        fontSize: _screenWidth < 600 ? 13 : 14,
+                        fontSize: _screenWidth < 600 ? 15 : 14,
                         fontWeight: FontWeight.w500,
                         color: Colors.grey[600],
                       ),
@@ -464,7 +464,7 @@ Color _getStatusColor(String label) {
                         child: Text(
                           _userProfile?['nama_lengkap'] ?? 'Petani Tomat',
                           style: TextStyle(
-                            fontSize: _screenWidth < 600 ? 16 : 18,
+                            fontSize: _screenWidth < 600 ? 18 : 18,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF191C1B),
                           ),
@@ -477,31 +477,8 @@ Color _getStatusColor(String label) {
             ),
           ),
 
-          Container(
-            width: _screenWidth < 600 ? 44 : 48,
-            height: _screenWidth < 600 ? 44 : 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.grey[50],
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.notifications_none,
-                color: Colors.grey[600],
-                size: _screenWidth < 600 ? 24 : 28,
-              ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Fitur notifikasi sedang dalam pengembangan'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ),
+          
+          
         ],
       ),
     );
@@ -534,7 +511,7 @@ Color _getStatusColor(String label) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Identify crop health in seconds.',
+                  'Pantau Kesehatan Tanaman Tomat Anda',
                   style: TextStyle(
                     fontSize: _screenWidth < 600 ? 28 : 32,
                     fontWeight: FontWeight.bold,
@@ -546,7 +523,7 @@ Color _getStatusColor(String label) {
                 ),
                 SizedBox(height: _screenWidth < 600 ? 16 : 20),
                 Text(
-                  'Point your camera at \nany plant to detect\n pests, diseases, or \nnutrient deficiencies.',
+                   'Arahkan kamera ke daun tomat\n anda untuk mendeteksi \n penyakit secara cepat \n dan akurat.',
                   style: TextStyle(
                     fontSize: _screenWidth < 600 ? 16 : 18,
                     color: Colors.white.withOpacity(0.85),
@@ -560,11 +537,11 @@ Color _getStatusColor(String label) {
                     Navigator.pushNamed(context, '/prediction');
                   },
                   icon: Icon(
-                    Icons.center_focus_strong,
+                    Icons.qr_code_scanner,
                     size: _screenWidth < 600 ? 24 : 28,
                   ),
                   label: Text(
-                    'Scan \nNow',
+                    'Scan\nSekarang',
                     style: TextStyle(
                       fontSize: _screenWidth < 600 ? 18 : 20,
                       fontWeight: FontWeight.w700,

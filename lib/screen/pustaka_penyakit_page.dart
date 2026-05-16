@@ -112,61 +112,7 @@ class _PustakaPenyakitPageState extends State<PustakaPenyakitPage> {
             ),
           ),
           // Search Bar Sliver
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Cari penyakit tanaman...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: Colors.green.shade600,
-                    ),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(
-                              Icons.clear,
-                              color: Colors.grey.shade400,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {
-                                _searchQuery = '';
-                              });
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          
 
           // Content
           SliverToBoxAdapter(

@@ -10,7 +10,7 @@ class ModelService {
   // LOAD MODEL
   Future<void> loadModel() async {
     try {
-      _interpreter = await Interpreter.fromAsset('assets/model.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/tomat_model.tflite');
       print("✅ MODEL LOADED");
     } catch (e) {
       print("❌ ERROR LOAD MODEL: $e");

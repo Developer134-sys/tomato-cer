@@ -480,7 +480,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           // Bio/Tentang Petani
                           _buildTextField(
                             controller: _bioController,
-                            label: "Tentang Petani",
+                            label: "Tentang Petani ",
                             hint: "Ceritakan tentang diri Anda dan pengalaman bertani tomat...",
                             icon: Icons.description_rounded,
                             maxLines: 4,

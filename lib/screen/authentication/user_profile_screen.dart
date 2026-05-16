@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:testing_aplikasi/screen/about_screen.dart';
+import 'package:testing_aplikasi/screen/help_page.dart';
 import 'package:testing_aplikasi/widgets/bottom_nav_bar.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -13,6 +15,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   late Future<Map<String, dynamic>?> futureProfile;
   late Future<Map<String, int>> futureStats;
   int _currentIndex = 4;
+  bool _isUserInfoExpanded = false; // Untuk mengontrol expand/collapse
 
   @override
   void initState() {
@@ -34,19 +37,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
       if (profile == null) {
         print('Profil tidak ditemukan, membuat profil baru...');
-        
+
         final newProfile = await Supabase.instance.client
             .from('user_profiles')
             .insert({
               'user_id': user.id,
-              'nama_lengkap': user.userMetadata?['nama_lengkap'] ?? 'Petani Tomat',
+              'nama_lengkap':
+                  user.userMetadata?['nama_lengkap'] ?? 'Petani Tomat',
               'alamat': '',
               'bio': '',
               'foto_profil': '',
             })
             .select()
             .single();
-        
+
         return newProfile as Map<String, dynamic>;
       }
 
@@ -73,7 +77,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
       for (var item in historyData) {
         String label = item['label']?.toString().toLowerCase() ?? '';
-        
+
         if (label == 'sehat' || label == 'healthy') {
           sehat++;
         } else if (label.isNotEmpty && label != 'null') {
@@ -81,13 +85,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         }
       }
 
-      print('Stats - Total: $totalScan, Sehat: $sehat, Terinfeksi: $terinfeksi');
+      print(
+        'Stats - Total: $totalScan, Sehat: $sehat, Terinfeksi: $terinfeksi',
+      );
 
-      return {
-        'totalScan': totalScan,
-        'sehat': sehat,
-        'terinfeksi': terinfeksi,
-      };
+      return {'totalScan': totalScan, 'sehat': sehat, 'terinfeksi': terinfeksi};
     } catch (e) {
       print('Error getUserStats: $e');
       return {'totalScan': 0, 'sehat': 0, 'terinfeksi': 0};
@@ -103,7 +105,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   void _onNavTap(int index) {
     if (_currentIndex == index) return;
-    
+
     setState(() {
       _currentIndex = index;
     });
@@ -167,7 +169,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline_rounded, size: 80, color: Colors.grey[400]),
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 80,
+                    color: Colors.grey[400],
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     "Terjadi kesalahan",
@@ -194,7 +200,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person_outline_rounded, size: 80, color: Colors.grey[400]),
+                  Icon(
+                    Icons.person_outline_rounded,
+                    size: 80,
+                    color: Colors.grey[400],
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     "Profil tidak ditemukan",
@@ -217,7 +227,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           }
 
           final profile = profileSnapshot.data!;
-          final userEmail = Supabase.instance.client.auth.currentUser?.email ?? '';
+          final userEmail =
+              Supabase.instance.client.auth.currentUser?.email ?? '';
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -231,21 +242,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 children: [
                   _buildProfileHeader(profile, userEmail),
                   const SizedBox(height: 24),
-                  
+
                   FutureBuilder<Map<String, int>>(
                     future: futureStats,
                     builder: (context, statsSnapshot) {
-                      if (statsSnapshot.connectionState == ConnectionState.waiting) {
+                      if (statsSnapshot.connectionState ==
+                          ConnectionState.waiting) {
                         return Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFBFCABA), width: 1),
+                            border: Border.all(
+                              color: const Color(0xFFBFCABA),
+                              width: 1,
+                            ),
                           ),
                           child: const Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0D631B)),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFF0D631B),
+                              ),
                             ),
                           ),
                         );
@@ -259,16 +276,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  
-                  _buildAccountSettings(),
+
+                  _buildAccountSettings(profile, userEmail),
                   const SizedBox(height: 16),
-                  
+
                   _buildOtherSettings(),
                   const SizedBox(height: 24),
-                  
+
                   _buildAIFooter(),
                   const SizedBox(height: 20),
-                  
+
                   _buildLogoutButton(),
                   const SizedBox(height: 30),
                 ],
@@ -307,11 +324,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               child: CircleAvatar(
                 radius: 56,
                 backgroundColor: Colors.white,
-                backgroundImage: profile['foto_profil'] != null && profile['foto_profil'] != ''
+                backgroundImage:
+                    profile['foto_profil'] != null &&
+                        profile['foto_profil'] != ''
                     ? NetworkImage(profile['foto_profil'])
                     : null,
-                child: profile['foto_profil'] == null || profile['foto_profil'] == ''
-                    ? Icon(Icons.person_rounded, size: 50, color: const Color(0xFF0D631B))
+                child:
+                    profile['foto_profil'] == null ||
+                        profile['foto_profil'] == ''
+                    ? Icon(
+                        Icons.person_rounded,
+                        size: 50,
+                        color: const Color(0xFF0D631B),
+                      )
                     : null,
               ),
             ),
@@ -320,7 +345,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               right: 0,
               child: GestureDetector(
                 onTap: () async {
-                  final result = await Navigator.pushNamed(context, '/edit_profile');
+                  final result = await Navigator.pushNamed(
+                    context,
+                    '/edit_profile',
+                  );
                   if (result == true) refreshProfile();
                 },
                 child: Container(
@@ -352,10 +380,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         const SizedBox(height: 4),
         Text(
           userEmail,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF40493D),
-          ),
+          style: const TextStyle(fontSize: 14, color: Color(0xFF40493D)),
         ),
       ],
     );
@@ -394,7 +419,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
             ),
           ),
-          
+
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             child: Row(
@@ -422,7 +447,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      
+
                       Container(
                         width: 40,
                         height: 3,
@@ -434,19 +459,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Garis pemisah vertikal
-                Container(
-                  width: 1,
-                  height: 50,
-                  color: const Color(0xFFBFCABA),
-                ),
-                
+                Container(width: 1, height: 50, color: const Color(0xFFBFCABA)),
+
                 // Sehat
                 Expanded(
                   child: Column(
                     children: [
-                       const Text(
+                      const Text(
                         "Sehat",
                         style: TextStyle(
                           fontSize: 12,
@@ -464,7 +485,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 6),
-                     
+
                       Container(
                         width: 40,
                         height: 3,
@@ -476,19 +497,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Garis pemisah vertikal
-                Container(
-                  width: 1,
-                  height: 50,
-                  color: const Color(0xFFBFCABA),
-                ),
-                
+                Container(width: 1, height: 50, color: const Color(0xFFBFCABA)),
+
                 // Terinfeksi
                 Expanded(
                   child: Column(
                     children: [
-
                       const Text(
                         "Terinfeksi",
                         style: TextStyle(
@@ -506,8 +522,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           color: Color(0xFFE53935),
                         ),
                       ),
-                      
-                      
+
                       const SizedBox(height: 4),
                       Container(
                         width: 40,
@@ -528,7 +543,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildAccountSettings() {
+  Widget _buildAccountSettings(Map<String, dynamic> profile, String userEmail) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -559,46 +574,230 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
           child: Column(
             children: [
-              _buildMenuItem(
-                icon: Icons.person_outline_rounded,
-                title: "Edit Profil",
+              // Menu Info Pengguna dengan Expandable
+              _buildExpandableMenuItem(
+                icon: Icons.account_circle_rounded,
+                title: "Info Pengguna",
                 iconColor: const Color(0xFF0D631B),
                 iconBgColor: const Color(0xFF0D631B).withOpacity(0.1),
-                onTap: () async {
-                  final result = await Navigator.pushNamed(context, '/edit_profile');
-                  if (result == true) refreshProfile();
+                isExpanded: _isUserInfoExpanded,
+                onTap: () {
+                  setState(() {
+                    _isUserInfoExpanded = !_isUserInfoExpanded;
+                  });
                 },
+                expandedContent: _buildUserInfoContent(profile, userEmail),
               ),
-              const Divider(height: 0, thickness: 0.5, color: Color(0xFFE3E2E2)),
-              _buildMenuItem(
-                icon: Icons.history_rounded,
-                title: "Riwayat Deteksi",
-                iconColor: const Color(0xFFF9A825),
-                iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
-                onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
-              ),
-              const Divider(height: 0, thickness: 0.5, color: Color(0xFFE3E2E2)),
-              _buildMenuItem(
-                icon: Icons.notifications_none_rounded,
-                title: "Notifikasi",
-                iconColor: const Color(0xFFE53935),
-                iconBgColor: const Color(0xFFE53935).withOpacity(0.1),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+
+              // Menu lainnya (tidak dalam kondisi expand)
+              if (!_isUserInfoExpanded) ...[
+                const Divider(
+                  height: 0,
+                  thickness: 0.5,
+                  color: Color(0xFFE3E2E2),
+                ),
+                _buildMenuItem(
+                  icon: Icons.mode_edit_rounded,
+                  title: "Edit Profil",
+                  iconColor: const Color(0xFF0D631B),
+                  iconBgColor: const Color(0xFF0D631B).withOpacity(0.1),
+                  onTap: () async {
+                    final result = await Navigator.pushNamed(
+                      context,
+                      '/edit_profile',
+                    );
+                    if (result == true) refreshProfile();
+                  },
+                ),
+                const Divider(
+                  height: 0,
+                  thickness: 0.5,
+                  color: Color(0xFFE3E2E2),
+                ),
+                _buildMenuItem(
+                  icon: Icons.history_rounded,
+                  title: "Riwayat Deteksi",
+                  iconColor: const Color(0xFFF9A825),
+                  iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
+                  onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
+                ),
+              ] else ...[
+                // Jika expanded, tetap tampilkan divider setelah konten
+                const Divider(
+                  height: 0,
+                  thickness: 0.5,
+                  color: Color(0xFFE3E2E2),
+                ),
+                _buildMenuItem(
+                  icon: Icons.person_outline_rounded,
+                  title: "Edit Profil",
+                  iconColor: const Color(0xFF0D631B),
+                  iconBgColor: const Color(0xFF0D631B).withOpacity(0.1),
+                  onTap: () async {
+                    final result = await Navigator.pushNamed(
+                      context,
+                      '/edit_profile',
+                    );
+                    if (result == true) refreshProfile();
+                  },
+                ),
+                const Divider(
+                  height: 0,
+                  thickness: 0.5,
+                  color: Color(0xFFE3E2E2),
+                ),
+                _buildMenuItem(
+                  icon: Icons.history_rounded,
+                  title: "Riwayat Deteksi",
+                  iconColor: const Color(0xFFF9A825),
+                  iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
+                  onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget untuk menu yang bisa expand
+  Widget _buildExpandableMenuItem({
+    required IconData icon,
+    required String title,
+    required Color iconColor,
+    required Color iconBgColor,
+    required bool isExpanded,
+    required VoidCallback onTap,
+    required Widget expandedContent,
+  }) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEC330),
+                    color: iconBgColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    "3",
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF6F5100),
+                  child: Icon(icon, color: iconColor, size: 22),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF1B1C1C),
                     ),
                   ),
                 ),
-                onTap: () {},
+                Icon(
+                  isExpanded
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                  color: const Color(0xFF707A6C),
+                  size: 22,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (isExpanded) expandedContent,
+      ],
+    );
+  }
+
+  // Konten info pengguna yang ditampilkan saat expand
+  Widget _buildUserInfoContent(Map<String, dynamic> profile, String userEmail) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Divider(height: 1, thickness: 0.5, color: Color(0xFFE3E2E2)),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            icon: Icons.person_rounded,
+            label: "Nama Lengkap",
+            value: profile['nama_lengkap'] ?? '-',
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            icon: Icons.email_rounded,
+            label: "Email",
+            value: userEmail,
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            icon: Icons.location_on_rounded,
+            label: "Alamat",
+            value: profile['alamat'] != null && profile['alamat'] != ''
+                ? profile['alamat']
+                : 'Belum diisi',
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            icon: Icons.info_outline_rounded,
+            label: "tentang petani ",
+            value: profile['bio'] != null && profile['bio'] != ''
+                ? profile['bio']
+                : 'Belum diisi',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0D631B).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: const Color(0xFF0D631B), size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF707A6C),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF1B1C1C),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -641,17 +840,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               _buildMenuItem(
                 icon: Icons.info_outline_rounded,
                 title: "Tentang Aplikasi",
-                iconColor: const Color.fromARGB(255, 18, 18, 18),
-                iconBgColor: const Color.fromARGB(255, 179, 180, 181).withOpacity(0.1),
-                onTap: () {},
+                iconColor: const Color.fromARGB(255, 7, 81, 147),
+                iconBgColor: const Color.fromARGB(
+                  255,
+                  146,
+                  192,
+                  239,
+                ).withOpacity(0.1),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AboutScreen()),
+                  );
+                },
               ),
-              const Divider(height: 0, thickness: 0.5, color: Color(0xFFE3E2E2)),
+              const Divider(
+                height: 0,
+                thickness: 0.5,
+                color: Color(0xFFE3E2E2),
+              ),
               _buildMenuItem(
                 icon: Icons.help_outline_rounded,
                 title: "Bantuan",
                 iconColor: const Color.fromARGB(255, 39, 39, 39),
-                iconBgColor: const Color.fromARGB(255, 156, 155, 156).withOpacity(0.1),
-                onTap: () {},
+                iconBgColor: const Color.fromARGB(
+                  255,
+                  156,
+                  155,
+                  156,
+                ).withOpacity(0.1),
+                 onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HelpPage()),
+                  );
+                },
               ),
             ],
           ),
@@ -687,10 +910,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF1B1C1C),
-                ),
+                style: const TextStyle(fontSize: 16, color: Color(0xFF1B1C1C)),
               ),
             ),
             trailing ??
@@ -742,7 +962,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         final confirm = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             title: const Text("Konfirmasi Logout"),
             content: const Text("Apakah Anda yakin ingin keluar?"),
             actions: [
@@ -760,15 +982,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         );
 
         if (confirm == true) {
-         
-
           try {
-            // Proses logout
             await Supabase.instance.client.auth.signOut();
-            
+
             if (!mounted) return;
-            
-            // Tampilkan notifikasi logout berhasil
+
             ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -783,28 +1001,34 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 duration: Duration(seconds: 2),
               ),
             );
-            
-            // Tunggu sebentar agar notifikasi terlihat
+
             await Future.delayed(const Duration(milliseconds: 500));
-            
+
             if (!mounted) return;
-            
-            // Navigasi ke halaman login dan hapus semua route sebelumnya
-            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-            
+
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/login',
+              (route) => false,
+            );
           } catch (e) {
-            // Tampilkan pesan error jika logout gagal
             if (!mounted) return;
-            
+
             ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text('Gagal logout: ${e.toString().replaceFirst('Exception: ', '')}'),
+                      child: Text(
+                        'Gagal logout: ${e.toString().replaceFirst('Exception: ', '')}',
+                      ),
                     ),
                   ],
                 ),

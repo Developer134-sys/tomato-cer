@@ -42,16 +42,11 @@ class BottomNavBar extends StatelessWidget {
               ),
               _buildNavItem(
                 icon: Icons.menu_book_outlined, // Icon buku
-                label: 'info',
+                label: 'pustaka',
                 index: 1,
                 isActive: currentIndex == 1,
               ),
-              _buildNavItem(
-                icon: Icons.qr_code_scanner,
-                label: 'Scanner',
-                index: 2,
-                isActive: currentIndex == 2,
-              ),
+              
               _buildNavItem(
                 icon: Icons.history,
                 label: 'History',

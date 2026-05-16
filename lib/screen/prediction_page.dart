@@ -34,6 +34,12 @@ class _PredictionPageState extends State<PredictionPage>
   late Animation<double> _scanAnimation;
   late AnimationController _blinkController;
   late Animation<double> _blinkAnimation;
+  
+  // Animasi untuk loading
+  late AnimationController _progressController;
+  late Animation<double> _progressAnimation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   // Variabel untuk menyimpan hasil prediksi sementara
   String? _tempLabel;
@@ -65,6 +71,25 @@ class _PredictionPageState extends State<PredictionPage>
     _blinkAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(parent: _blinkController, curve: Curves.easeInOut),
     );
+    
+    // Animasi untuk progress bar
+    _progressController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    
+    _progressAnimation = Tween<double>(begin: 0.0, end: 0.95).animate(
+      CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
+    );
+    
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+    
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -72,6 +97,8 @@ class _PredictionPageState extends State<PredictionPage>
     _cameraController?.dispose();
     _scanAnimationController.dispose();
     _blinkController.dispose();
+    _progressController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -118,6 +145,8 @@ class _PredictionPageState extends State<PredictionPage>
         _tempLabel = null;
         _tempAccuracy = null;
       });
+      
+      _progressController.forward();
 
       await _performPrediction(File(picture.path));
     } catch (e) {
@@ -143,6 +172,8 @@ class _PredictionPageState extends State<PredictionPage>
         _tempLabel = null;
         _tempAccuracy = null;
       });
+      
+      _progressController.forward();
 
       await _performPrediction(File(picked.path));
     }
@@ -156,6 +187,9 @@ class _PredictionPageState extends State<PredictionPage>
 
       String predictedLabel = result["label"];
       double predictedAccuracy = result["accuracy"];
+      
+      await _progressController.animateTo(1.0, duration: const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 500));
 
       setState(() {
         _tempLabel = predictedLabel;
@@ -164,10 +198,13 @@ class _PredictionPageState extends State<PredictionPage>
         accuracy = predictedAccuracy;
         _isPredicting = false;
       });
+      
+      _progressController.reset();
     } catch (e) {
       setState(() {
         _isPredicting = false;
       });
+      _progressController.reset();
       print("Error during prediction: $e");
 
       if (mounted) {
@@ -200,7 +237,7 @@ class _PredictionPageState extends State<PredictionPage>
         severity: SeverityService.getSeverity(_tempLabel!),
         recommendation: RecommendationService.getRecommendation(_tempLabel!),
         description: RecommendationService.getDescription(_tempLabel!), 
-        diseaseName: RecommendationService.getDiseaseName(_tempLabel!),// TAMBAHKAN INI
+        diseaseName: RecommendationService.getDiseaseName(_tempLabel!),
       );
 
       if (mounted) {
@@ -257,6 +294,7 @@ class _PredictionPageState extends State<PredictionPage>
       _isPredicting = false;
       _isLoading = false;
     });
+    _progressController.reset();
   }
 
   @override
@@ -274,9 +312,26 @@ class _PredictionPageState extends State<PredictionPage>
             )
           else if (_image != null)
             Positioned.fill(
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
+              child: Stack(
+                children: [
+                  // Gambar background
+                  Image.file(
+                    _image!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+                  // Overlay gelap saat loading
+                  if (_isPredicting)
+                    Container(
+                      color: Colors.black.withOpacity(0.7),
+                    ),
+                  // Loading di tengah
+                  if (_isPredicting)
+                    Center(
+                      child: _buildModernLoading(),
+                    ),
+                ],
               ),
             )
           else if (!_isCameraReady)
@@ -312,10 +367,201 @@ class _PredictionPageState extends State<PredictionPage>
           if (_image == null && _isCameraReady)
             _buildGuideText(),
 
-          if (_image != null)
+          if (_image != null && !_isPredicting)
             _buildResultView(),
         ],
       ),
+    );
+  }
+
+  // Widget loading modern yang diposisikan di tengah
+  Widget _buildModernLoading() {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_progressAnimation, _pulseAnimation]),
+      builder: (context, child) {
+        int percentage = (_progressAnimation.value * 100).toInt();
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF0A2F1F),
+                Color(0xFF0B3B20),
+                Color(0xFF0A2F1F),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Teks atas
+              const Text(
+                "🌿 Menganalisis daun tomat...",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Mohon tunggu sebentar",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+              
+              const SizedBox(height: 40),
+              
+              // Lingkaran progress dengan ikon daun
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Lingkaran pulsing
+                  Transform.scale(
+                    scale: _pulseAnimation.value,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.green.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Circular progress
+                  SizedBox(
+                    width: 110,
+                    height: 110,
+                    child: CircularProgressIndicator(
+                      value: _progressAnimation.value,
+                      strokeWidth: 5,
+                      backgroundColor: Colors.white.withOpacity(0.1),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Color(0xFF4CAF50),
+                      ),
+                    ),
+                  ),
+                  
+                  // Ikon daun di tengah
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF2E7D32),
+                          Color(0xFF1B5E20),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.3),
+                          blurRadius: 15,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.eco,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 40),
+              
+              // Progress bar horizontal
+              Column(
+                children: [
+                  Container(
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: _progressAnimation.value,
+                        backgroundColor: Colors.transparent,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF4CAF50),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "$percentage%",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "AI sedang memproses gambar...",
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.white.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Loading dots
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  3,
+                  (index) => AnimatedBuilder(
+                    animation: _progressController,
+                    builder: (context, child) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.5 + (index * 0.2)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -579,36 +825,6 @@ class _PredictionPageState extends State<PredictionPage>
                       ),
 
                     const SizedBox(height: 16),
-
-                    // Loading state
-                    if (_isPredicting)
-                      Container(
-                        padding: const EdgeInsets.all(40),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              "Menganalisis gambar...",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
                     // Hasil prediksi
                     if (label.isNotEmpty && !_isPredicting && !_isLoading)

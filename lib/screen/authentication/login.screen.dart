@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: SizedBox(
                       height: 180,
                       child: Lottie.asset(
-                        'assets/Tomatoplant.json',
+                        'assets/login.json',
                         fit: BoxFit.contain,
                         repeat: true,
                         reverse: false,
