@@ -10,7 +10,7 @@ class DiseaseData {
         icon: Icons.water_damage,
         color: const Color(0xFF080C18),
         materi: """
-Bacterial Spot adalah penyakit bakteri yang disebabkan oleh Xanthomonas spp. 
+Bacterial Spot adalah penyakit bakteri pada tanaman tomat yang disebabkan oleh Xanthomonas spp. Penyakit ini dapat menyerang daun, batang, dan buah serta mudah menyebar pada kondisi lembap.
 
 **Gejala:**
 - Bercak kecil berwarna hijau gelap hingga hitam pada daun
@@ -41,7 +41,7 @@ Bacterial Spot adalah penyakit bakteri yang disebabkan oleh Xanthomonas spp.
         icon: Icons.brightness_high,
         color: Colors.orange,
         materi: """
-Early Blight disebabkan oleh jamur Alternaria solani.
+Early Blight adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Alternaria solani. Penyakit ini biasanya menyerang daun tua terlebih dahulu dan ditandai dengan bercak coklat berbentuk lingkaran konsentris seperti target.
 
 **Gejala:**
 - Bercak coklat dengan pola lingkaran konsentris seperti target
@@ -73,7 +73,7 @@ Early Blight disebabkan oleh jamur Alternaria solani.
         icon: Icons.cloudy_snowing,
         color: Colors.blueGrey,
         materi: """
-Late Blight adalah penyakit mematikan yang disebabkan oleh Phytophthora infestans.
+Late Blight adalah penyakit serius pada tanaman tomat yang disebabkan oleh Phytophthora infestans. Penyakit ini dapat menyebar dengan sangat cepat pada kondisi lembap dan menyebabkan kerusakan besar pada daun, batang, serta buah tanaman.
 
 **Gejala:**
 - Bercak basah berwarna hijau gelap pada daun
@@ -105,7 +105,7 @@ Late Blight adalah penyakit mematikan yang disebabkan oleh Phytophthora infestan
         icon: Icons.eco,
         color: Color(0xFFB4B23D),
         materi: """
-Leaf Mold disebabkan oleh jamur Cladosporium fulvum.
+Leaf Mold adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Cladosporium fulvum. Penyakit ini umumnya muncul pada kondisi lembap dengan sirkulasi udara yang buruk dan dapat menyebabkan daun menguning serta mengering.
 
 **Gejala:**
 - Bercak kuning tidak beraturan di permukaan daun atas
@@ -137,7 +137,7 @@ Leaf Mold disebabkan oleh jamur Cladosporium fulvum.
         icon: Icons.circle_outlined,
         color: Colors.brown,
         materi: """
-Septoria Leaf Spot disebabkan oleh jamur Septoria lycopersici.
+Septoria Leaf Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Septoria lycopersici. Penyakit ini biasanya menyerang daun bagian bawah dan dapat menyebabkan daun menguning serta rontok apabila tidak segera ditangani.
 
 **Gejala:**
 - Bercak kecil bulat berwarna coklat pada daun tua
@@ -169,7 +169,7 @@ Septoria Leaf Spot disebabkan oleh jamur Septoria lycopersici.
         icon: Icons.pest_control,
         color: Colors.purple,
         materi: """
-Spider Mites (Two-spotted Spider Mite) adalah tungau kecil dari keluarga Tetranychidae.
+Spider Mites (Two-spotted Spider Mite) adalah hama tungau kecil dari keluarga Tetranychidae yang menyerang tanaman tomat. Hama ini biasanya muncul pada kondisi panas dan kering serta dapat menyebabkan daun berbintik, menguning, dan mengering.
 
 **Gejala:**
 - Bintik-bintik kuning atau putih seperti pasir pada daun
@@ -201,7 +201,7 @@ Spider Mites (Two-spotted Spider Mite) adalah tungau kecil dari keluarga Tetrany
         icon: Icons.my_location,
         color: Colors.deepOrange,
         materi: """
-Target Spot disebabkan oleh jamur Corynespora cassiicola.
+Target Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Corynespora cassiicola. Penyakit ini ditandai dengan bercak berbentuk lingkaran seperti target dan dapat menyerang daun, batang, serta buah tanaman.
 
 **Gejala:**
 - Bercak bulat dengan pola lingkaran konsentris seperti target
@@ -232,7 +232,7 @@ Target Spot disebabkan oleh jamur Corynespora cassiicola.
         icon: Icons.coronavirus,
         color: Colors.yellow.shade700,
         materi: """
-Tomato Yellow Leaf Curl Virus (TYLCV) adalah penyakit virus yang ditularkan oleh kutu kebul.
+Tomato Yellow Leaf Curl Virus (TYLCV) adalah penyakit virus pada tanaman tomat yang ditularkan oleh kutu kebul (Bemisia tabaci). Penyakit ini dapat menyebabkan daun menguning, keriting, serta menghambat pertumbuhan dan produksi buah tanaman.
 
 **Gejala:**
 - Daun menguning dan menggulung ke atas
@@ -264,7 +264,7 @@ Tomato Yellow Leaf Curl Virus (TYLCV) adalah penyakit virus yang ditularkan oleh
         icon: Icons.grain,
         color: Colors.amber,
         materi: """
-Tomato Mosaic Virus (ToMV) adalah penyakit virus yang umum pada tanaman tomat.
+Tomato Mosaic Virus (ToMV) adalah penyakit virus yang umum menyerang tanaman tomat. Penyakit ini dapat menyebabkan pola mosaik pada daun, pertumbuhan tanaman terhambat, dan menurunkan kualitas serta hasil panen.
 
 **Gejala:**
 - Pola mosaik hijau muda dan hijau tua pada daun
@@ -295,7 +295,7 @@ Tomato Mosaic Virus (ToMV) adalah penyakit virus yang umum pada tanaman tomat.
         icon: Icons.ac_unit,
         color: Colors.blue.shade300,
         materi: """
-Powdery Mildew adalah penyakit jamur yang menyerang permukaan daun.
+Powdery Mildew adalah penyakit jamur pada tanaman tomat yang menyerang permukaan daun. Penyakit ini ditandai dengan lapisan putih seperti tepung dan dapat menyebabkan daun menguning, mengering, serta menghambat pertumbuhan tanaman.
 
 **Gejala:**
 - Lapisan tepung putih pada permukaan daun

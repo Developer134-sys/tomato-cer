@@ -137,7 +137,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          "Profil",
+          "Profile",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -146,12 +146,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded, color: Color(0xFF0D631B)),
-            onPressed: () {},
-          ),
-        ],
+      
       ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: futureProfile,
@@ -616,7 +611,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
                 _buildMenuItem(
                   icon: Icons.history_rounded,
-                  title: "Riwayat Deteksi",
+                  title: "History Scan",
                   iconColor: const Color(0xFFF9A825),
                   iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
                   onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
@@ -1051,7 +1046,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             Icon(Icons.logout_rounded, color: Color(0xFFBA1A1A), size: 20),
             SizedBox(width: 12),
             Text(
-              "Keluar",
+              "logout",
               style: TextStyle(
                 color: Color(0xFFBA1A1A),
                 fontSize: 16,

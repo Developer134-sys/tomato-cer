@@ -336,7 +336,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
             )
           : const Text(
-              "Riwayat Scan",
+              "History Scan",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

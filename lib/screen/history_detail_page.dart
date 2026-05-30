@@ -26,7 +26,7 @@ class HistoryDetailPage extends StatelessWidget {
     );
   }
 
-  // ==================== FUNGSI STATUS YANG SUDAH DIPERBAIKI ====================
+  
   // Helper: Mendapatkan label status - SESUAI 11 LABEL (SAMA SEPERTI DI HOME PAGE)
   String _getStatusLabel(String label) {
     final lowerLabel = label.toLowerCase().trim();
@@ -151,7 +151,7 @@ class HistoryDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Detail Riwayat',
+            'Detail History',
             style: TextStyle(
               fontSize: isSmallScreen ? 16 : 18,
               fontWeight: FontWeight.w500,

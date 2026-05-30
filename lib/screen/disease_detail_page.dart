@@ -13,21 +13,11 @@ class DiseaseDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           disease.title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: disease.color,
         foregroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              // Share functionality
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -67,9 +57,7 @@ class DiseaseDetailPage extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             'Gambar tidak tersedia',
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                            ),
+                            style: TextStyle(color: Colors.grey.shade500),
                           ),
                         ],
                       ),
@@ -144,6 +132,16 @@ class DiseaseDetailPage extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     // Detailed Material with improved formatting
+                    const Text(
+                      "Informasi Penyakit",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+
                     _buildFormattedMateri(disease.materi),
 
                     const SizedBox(height: 20),
@@ -191,10 +189,7 @@ class DiseaseDetailPage extends StatelessWidget {
                 Expanded(
                   child: Text(
                     line.substring(1).trim(),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      height: 1.5,
-                    ),
+                    style: const TextStyle(fontSize: 15, height: 1.5),
                   ),
                 ),
               ],
@@ -227,9 +222,7 @@ class DiseaseDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.blue.shade100,
-        ),
+        border: Border.all(color: Colors.blue.shade100),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,10 +271,7 @@ class DiseaseDetailPage extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.blue.shade700,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
       ),
     );
   }

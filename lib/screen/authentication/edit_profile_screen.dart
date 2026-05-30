@@ -15,7 +15,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _namaController = TextEditingController();
   final _alamatController = TextEditingController();
   final _bioController = TextEditingController();
-  
 
   File? _selectedImage;
   bool _isLoading = false;
@@ -50,7 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _namaController.text = response['nama_lengkap'] ?? '';
         _alamatController.text = response['alamat'] ?? '';
         _bioController.text = response['bio'] ?? '';
-       
+
         _currentPhotoUrl = response['foto_profil'];
       }
     } catch (e) {
@@ -109,7 +108,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (user == null) return null;
 
       final fileExtension = _selectedImage!.path.split('.').last;
-      final fileName = 'profile_${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+      final fileName =
+          'profile_${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
       // Upload image to Supabase Storage
       await _supabase.storage
@@ -163,7 +163,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'nama_lengkap': _namaController.text.trim(),
         'alamat': _alamatController.text.trim(),
         'bio': _bioController.text.trim(),
-        
+
         'foto_profil': photoUrl ?? _currentPhotoUrl,
         'updated_at': DateTime.now().toIso8601String(),
       };
@@ -210,10 +210,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       // Jika update tidak mengubah baris apapun (data belum ada), maka insert
       if (updateResponse.isEmpty) {
-        await _supabase
-            .from('user_profiles')
-            .insert(profileData)
-            .select();
+        await _supabase.from('user_profiles').insert(profileData).select();
       }
     } catch (e) {
       // Jika ada error, coba dengan approach yang berbeda
@@ -228,9 +225,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       await _supabase
           .from('user_profiles')
           .upsert(
-        profileData,
-        onConflict: 'user_id', // Pastikan kolom ini ada di constraint unique
-      );
+            profileData,
+            onConflict:
+                'user_id', // Pastikan kolom ini ada di constraint unique
+          );
     } catch (e) {
       // Jika masih error, cek dulu apakah data exist
       final existingData = await _supabase
@@ -247,9 +245,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .eq('user_id', profileData['user_id']);
       } else {
         // Insert new data
-        await _supabase
-            .from('user_profiles')
-            .insert(profileData);
+        await _supabase.from('user_profiles').insert(profileData);
       }
     }
   }
@@ -259,7 +255,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _namaController.dispose();
     _alamatController.dispose();
     _bioController.dispose();
-   
+
     super.dispose();
   }
 
@@ -269,20 +265,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          "Edit Profil Petani",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          "Edit Profile",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
+
         centerTitle: true,
         backgroundColor: Colors.green[700],
         elevation: 0,
+
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+
+        leading: Container(
+          margin: const EdgeInsets.only(left: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: Color.fromARGB(255, 12, 16, 12),
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
+
         actions: [
           if (_isLoading)
             Padding(
@@ -328,7 +344,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: Column(
                         children: [
                           Text(
-                            "Foto Profil",
+                            "Profile",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -354,11 +370,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   backgroundColor: Colors.green[50],
                                   backgroundImage: _selectedImage != null
                                       ? FileImage(_selectedImage!)
-                                      : (_currentPhotoUrl != null && _currentPhotoUrl!.isNotEmpty)
-                                          ? NetworkImage(_currentPhotoUrl!)
-                                          : null,
-                                  child: _selectedImage == null &&
-                                          (_currentPhotoUrl == null || _currentPhotoUrl!.isEmpty)
+                                      : (_currentPhotoUrl != null &&
+                                            _currentPhotoUrl!.isNotEmpty)
+                                      ? NetworkImage(_currentPhotoUrl!)
+                                      : null,
+                                  child:
+                                      _selectedImage == null &&
+                                          (_currentPhotoUrl == null ||
+                                              _currentPhotoUrl!.isEmpty)
                                       ? Icon(
                                           Icons.agriculture_rounded,
                                           size: 40,
@@ -376,7 +395,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     ),
                                     child: Center(
                                       child: CircularProgressIndicator(
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -392,7 +414,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               label: const Text("Pilih Foto"),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.green[700],
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -474,14 +498,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                        
-                         
-
                           // Bio/Tentang Petani
                           _buildTextField(
                             controller: _bioController,
                             label: "Tentang Petani ",
-                            hint: "Ceritakan tentang diri Anda dan pengalaman bertani tomat...",
+                            hint:
+                                "Ceritakan tentang diri Anda dan pengalaman bertani tomat...",
                             icon: Icons.description_rounded,
                             maxLines: 4,
                           ),
@@ -518,12 +540,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     )
                                   : const Icon(Icons.save_rounded),
                               label: Text(
-                                _isLoading ? "Menyimpan..." : "Simpan Perubahan",
+                                _isLoading
+                                    ? "Menyimpan..."
+                                    : "Simpan Perubahan",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
@@ -563,7 +590,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.green[700],
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

@@ -19,7 +19,7 @@ class RecommendationService {
   // DESKRIPSI PENYAKIT (penyebab, gejala, dampak)
   static final Map<String, String> descriptions = {
     "Bacterial_spot": 
-        "Penyakit ini disebabkan oleh bakteri **Xanthomonas campestris pv. vesicatoria**. "
+        "Penyakit ini disebabkan oleh bakteri (Xanthomonas campestris pv. vesicatoria). "
         "Gejala awal berupa bercak-bercak kecil berwarna hijau tua seperti basah air pada daun, "
         "kemudian berubah menjadi hitam kecoklatan dengan pinggiran kuning. "
         "Pada kondisi lembab, bercak dapat menyatu dan menyebabkan daun mengering. "
@@ -27,7 +27,7 @@ class RecommendationService {
         "Infeksi berat dapat menyebabkan kerontokan daun dan menurunkan hasil panen hingga 50%.",
 
     "Early_blight": 
-        "Disebabkan oleh jamur **Alternaria solani**. Gejala khas berupa bercak coklat kehitaman "
+        "Disebabkan oleh jamur (Alternaria solani). Gejala khas berupa bercak coklat kehitaman "
         "berbentuk lingkaran konsentris seperti **target panah** pada daun tua. "
         "Bercak mulai dari daun bagian bawah kemudian menyebar ke atas. "
         "Pada batang, muncul bercak coklat agak oval. Buah juga dapat terinfeksi "
@@ -35,7 +35,7 @@ class RecommendationService {
         "pada suhu hangat (25-30°C) dengan kelembaban tinggi.",
 
     "Late_blight": 
-        "Penyakit paling berbahaya pada tomat yang disebabkan oleh **Phytophthora infestans**, "
+        "Penyakit paling berbahaya pada tomat yang disebabkan oleh (Phytophthora infestans, "
         "jamur air yang sama penyebab hawar daun kentang. Gejala awal berupa bercak basah "
         "kehijauan pada daun yang cepat meluas menjadi hitam kecoklatan. "
         "Pada batang, muncul bercak hitam memanjang. Dalam kondisi lembab, tumbuh "
@@ -43,15 +43,15 @@ class RecommendationService {
         "waktu 7-10 hari setelah infeksi pertama. Menyebabkan gagal panen total.",
 
     "Leaf_Mold": 
-        "Disebabkan oleh jamur **Passalora fulva** (sebelumnya Fulvia fulva). "
+        "Disebabkan oleh jamur (Passalora fulva) (sebelumnya Fulvia fulva). "
         "Gejala muncul bercak kuning pucat pada permukaan atas daun. "
-        "Pada permukaan bawah daun, tumbuh lapisan jamur berwarna **zaitun keabu-abuan** "
+        "Pada permukaan bawah daun, tumbuh lapisan jamur berwarna (zaitun keabu-abuan) "
         "seperti beludru. Daun yang terinfeksi berat menggulung, mengering, dan rontok. "
         "Penyakit ini sangat umum terjadi pada rumah kaca atau tanaman dengan "
         "sirkulasi udara buruk dan kelembaban tinggi (85%+).",
 
     "Septoria_leaf_spot": 
-        "Penyebabnya adalah jamur **Septoria lycopersici**. Gejala khas berupa **bercak kecil bulat** "
+        "Penyebabnya adalah jamur (Septoria lycopersici). Gejala khas berupa (bercak kecil bulat) "
         "berdiameter 2-5 mm dengan pinggiran hitam dan pusat berwarna abu-abu keputihan. "
         "Bercak muncul pertama pada daun bagian bawah kemudian menyebar ke atas. "
         "Daun yang terinfeksi berat menguning dan rontok dari bawah ke atas. "
@@ -59,15 +59,15 @@ class RecommendationService {
         "bertahan di sisa-sisa tanaman selama 2-3 tahun.",
 
     "Spider_mites Two-spotted_spider_mite": 
-        "Disebabkan oleh tungau kecil **Tetranychus urticae** yang sulit dilihat dengan mata telanjang. "
-        "Gejala awal berupa **bercak-bercak kuning kecil** (stippling) pada permukaan atas daun. "
+        "Disebabkan oleh tungau kecil (Tetranychus urticae yang sulit dilihat dengan mata telanjang. "
+        "Gejala awal berupa (bercak-bercak kuning kecil) (stippling) pada permukaan atas daun. "
         "Daun tampak berbintik-bintik, kemudian menguning, mengering, dan rontok. "
         "Ciri khas adanya **anyaman halus seperti sutra** di bawah daun dan di pucuk tanaman. "
         "Hama ini berkembang sangat cepat di cuaca panas dan kering. Serangan berat "
         "dapat menyebabkan daun menggulung dan tanaman kerdil.",
 
     "Target_Spot": 
-        "Disebabkan oleh jamur **Corynespora cassiicola**. Nama 'Target Spot' berasal dari "
+        "Disebabkan oleh jamur (Corynespora cassiicola). Nama 'Target Spot' berasal dari "
         "bentuk bercak yang khas yaitu **lingkaran konsentris seperti sasaran panah**. "
         "Bercak berukuran 5-15 mm dengan pinggiran kuning dan pusat coklat tua. "
         "Pada buah, menyebabkan bercak hitam cekung di sekitar tangkai. "
@@ -75,7 +75,7 @@ class RecommendationService {
         "Spora jamur dapat menyebar melalui udara, air, dan peralatan pertanian.",
 
     "Tomato_Yellow_Leaf_Curl_Virus": 
-        "Penyakit virus yang ditularkan oleh **kutu kebul (Bemisia tabaci)**. "
+        "Penyakit virus yang ditularkan oleh kutu kebul (Bemisia tabaci). "
         "Virus ini tidak bisa disembuhkan setelah tanaman terinfeksi. Gejala utama: "
         "daun muda **menggulung ke atas**, menguning di tepi, dan ukuran daun mengecil. "
         "Tanaman menjadi **kerdil (stunting)** dengan ruas batang memendek. "
@@ -84,24 +84,24 @@ class RecommendationService {
         "tanaman muda. Masa inkubasi gejala sekitar 2-3 minggu.",
 
     "Tomato_mosaic_virus": 
-        "Disebabkan oleh **Tobacco Mosaic Virus (TMV)** yang sangat mudah menular melalui "
-        "kontak mekanis (tangan, alat kebun, pakaian). Gejala: daun tampak **belang hijau tua "
-        "dan hijau muda** (mosaik) serta menggulung ke bawah. "
+        "Disebabkan oleh Tobacco Mosaic Virus (TMV) yang sangat mudah menular melalui "
+        "kontak mekanis (tangan, alat kebun, pakaian). Gejala: daun tampak belang hijau tua "
+        "dan hijau muda (mosaik) serta menggulung ke bawah. "
         "Tanaman menjadi kerdil dengan pertumbuhan terhambat. "
         "Buah yang terinfeksi menunjukkan pola warna tidak merata (marbling) dan "
         "mengalami pematangan tidak sempurna. Virus dapat bertahan dalam "
         "sisa-sisa tanaman selama bertahun-tahun.",
 
     "powdery_mildew": 
-        "Disebabkan oleh jamur **Oidium neolycopersici** (atau Leveillula taurica). "
-        "Gejala khas muncul **lapisan tepung berwarna putih** pada permukaan atas daun, "
+        "Disebabkan oleh jamur Oidium neolycopersici (atau Leveillula taurica). "
+        "Gejala khas muncul lapisan tepung berwarna putih pada permukaan atas daun, "
         "batang, dan terkadang buah. Bercak putih meluas hingga menutupi seluruh permukaan daun. "
         "Daun yang terinfeksi menguning, mengering, dan rontok dari bawah ke atas. "
-        "Berbeda dengan penyakit jamur lain, embun tepung menyukai kondisi **kering** "
+        "Berbeda dengan penyakit jamur lain, embun tepung menyukai kondisi kering"
         "dengan kelembaban udara rendah (40-60%) dan suhu sedang (20-25°C).",
 
     "healthy": 
-        "Tanaman tomat Anda dalam **kondisi sehat**! Daun berwarna hijau segar, "
+        "Tanaman tomat Anda dalam kondisi sehat! Daun berwarna hijau segar, "
         "tidak ditemukan tanda-tanda infeksi penyakit atau serangan hama. "
         "Tanaman menunjukkan pertumbuhan normal dengan daun yang tidak menguning, "
         "tidak berbintik, dan tidak menggulung. Pertahankan kondisi ini dengan "

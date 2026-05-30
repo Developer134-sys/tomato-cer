@@ -100,7 +100,7 @@ class _PustakaPenyakitPageState extends State<PustakaPenyakitPage> {
                   vertical: 12,
                 ),
                 title: const Text(
-                  "Pustaka Penyakit",
+                  "Library Penyakit",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

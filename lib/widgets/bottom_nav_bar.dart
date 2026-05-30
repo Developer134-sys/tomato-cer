@@ -42,7 +42,7 @@ class BottomNavBar extends StatelessWidget {
               ),
               _buildNavItem(
                 icon: Icons.menu_book_outlined, // Icon buku
-                label: 'pustaka',
+                label: 'Library',
                 index: 1,
                 isActive: currentIndex == 1,
               ),

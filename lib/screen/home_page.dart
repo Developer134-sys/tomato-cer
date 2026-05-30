@@ -599,7 +599,7 @@ Color _getStatusColor(String label) {
       {
         'icon': Icons.warning,
         'iconColor': const Color(0xFFBA1A1A),
-        'label': 'Issues Found',
+        'label': 'Terinfeksi',
         'value': _isLoadingHistory ? '...' : '$_issuesFound',
       },
     ];
@@ -677,7 +677,7 @@ Color _getStatusColor(String label) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Recent Activity',
+              'Aktivitas Terbaru',
               style: TextStyle(
                 fontSize: _screenWidth < 600 ? 20 : 24,
                 fontWeight: FontWeight.bold,
@@ -691,7 +691,7 @@ Color _getStatusColor(String label) {
                 });
               },
               child: Text(
-                'View All',
+                'Lihat Semua',
                 style: TextStyle(
                   fontSize: _screenWidth < 600 ? 13 : 14,
                   fontWeight: FontWeight.w600,

@@ -309,7 +309,7 @@ class ResultCard extends StatelessWidget {
             onPressed: onSave,
             icon: const Icon(Icons.bookmark_border, size: 20),
             label: const Text(
-              "Simpan ke Riwayat",
+              "Simpan ke History ",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
