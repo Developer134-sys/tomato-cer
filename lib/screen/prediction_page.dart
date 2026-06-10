@@ -247,7 +247,7 @@ class _PredictionPageState extends State<PredictionPage>
               children: [
                 Icon(Icons.check_circle, color: Colors.white),
                 SizedBox(width: 12),
-                Expanded(child: Text("Hasil berhasil disimpan ke riwayat")),
+                Expanded(child: Text("Hasil berhasil disimpan ke History")),
               ],
             ),
             backgroundColor: Colors.green,

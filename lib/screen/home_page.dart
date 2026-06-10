@@ -913,7 +913,7 @@ Color _getStatusColor(String label) {
                         ),
                       ),
                       child: Text(
-                        'Severity: ${activity['severity']}',
+                        'keparahan : ${activity['severity']}',
                         style: TextStyle(
                           fontSize: isSmallScreen ? 11 : 12,
                           fontWeight: FontWeight.w600,

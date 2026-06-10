@@ -45,7 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
           // Tambahkan notifikasi sukses (opsional)
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('✅ Login berhasil. '),
+              content: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white, size: 20),
+                    SizedBox(width: 12),
+                    Text('Login berhasil.'),
+                  ],
+                ),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 2),
             ),

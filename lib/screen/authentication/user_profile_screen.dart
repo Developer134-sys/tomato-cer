@@ -609,13 +609,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   thickness: 0.5,
                   color: Color(0xFFE3E2E2),
                 ),
-                _buildMenuItem(
-                  icon: Icons.history_rounded,
-                  title: "History Scan",
-                  iconColor: const Color(0xFFF9A825),
-                  iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
-                  onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
-                ),
+               
               ] else ...[
                 // Jika expanded, tetap tampilkan divider setelah konten
                 const Divider(
@@ -641,13 +635,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   thickness: 0.5,
                   color: Color(0xFFE3E2E2),
                 ),
-                _buildMenuItem(
-                  icon: Icons.history_rounded,
-                  title: "Riwayat Deteksi",
-                  iconColor: const Color(0xFFF9A825),
-                  iconBgColor: const Color(0xFFF9A825).withOpacity(0.1),
-                  onTap: () => Navigator.pushNamed(context, '/HistoryPage'),
-                ),
+               
               ],
             ],
           ),

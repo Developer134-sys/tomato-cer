@@ -10,28 +10,17 @@ class DiseaseData {
         icon: Icons.water_damage,
         color: const Color(0xFF080C18),
         materi: """
-Bacterial Spot adalah penyakit bakteri pada tanaman tomat yang disebabkan oleh Xanthomonas spp. Penyakit ini dapat menyerang daun, batang, dan buah serta mudah menyebar pada kondisi lembap.
 
-**Gejala:**
-- Bercak kecil berwarna hijau gelap hingga hitam pada daun
-- Bercak dapat meluas dan bergabung menjadi area nekrotik besar
-- Daun menguning dan rontok sebelum waktunya
-- Lesi juga dapat muncul pada batang dan buah
+Bacterial Spot adalah penyakit bakteri pada tanaman tomat yang disebabkan oleh Xanthomonas spp. Penyakit ini menyerang daun, batang, dan buah, serta mudah menyebar pada kondisi lembap.
 
-**Penyebab:**
-- Bakteri Xanthomonas campestris pv. vesicatoria
-- Penyebaran melalui percikan air, alat pertanian, dan biji terinfeksi
+**GEJALA**
+Gejalanya berupa bercak kecil berwarna hijau gelap hingga hitam pada daun. Bercak dapat meluas dan bergabung menjadi area nekrotik besar. Daun akan menguning dan rontok sebelum waktunya, serta lesi juga dapat muncul pada batang dan buah.
 
-**Pengendalian:**
-- Gunakan benih sehat dan bebas penyakit
-- Rotasi tanaman dengan tanaman non-solanaceae
-- Hindari penyiraman dari atas tanaman
-- Aplikasi bakterisida tembaga
+**PENYEBAB**
+Penyebab utamanya adalah bakteri Xanthomonas campestris pv. vesicatoria. Penyebaran terjadi melalui percikan air hujan atau irigasi, alat pertanian yang terkontaminasi, serta biji yang terinfeksi dari musim tanam sebelumnya.
 
-**Pencegahan:**
-- Sanitasi alat pertanian secara rutin
-- Hindari bekerja di kebun saat tanaman basah
-- Gunakan mulsa plastik untuk mengurangi percikan air
+**PENANGANAN**
+Gunakan benih sehat dan bebas penyakit, lakukan rotasi tanaman dengan tanaman non-solanaceae (bukan keluarga terong-terongan), hindari penyiraman dari atas tanaman (gunakan irigasi tetes), serta aplikasikan bakterisida berbahan aktif tembaga secara berkala. Untuk pencegahan, sterilkan alat pertanian secara rutin dengan larutan desinfektan, hindari bekerja di kebun saat tanaman basah, dan gunakan mulsa plastik untuk mengurangi percikan air ke daun.
 """,
         imageAsset: "assets/images/bacterial_spot.JPG",
       ),
@@ -41,29 +30,17 @@ Bacterial Spot adalah penyakit bakteri pada tanaman tomat yang disebabkan oleh X
         icon: Icons.brightness_high,
         color: Colors.orange,
         materi: """
-Early Blight adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Alternaria solani. Penyakit ini biasanya menyerang daun tua terlebih dahulu dan ditandai dengan bercak coklat berbentuk lingkaran konsentris seperti target.
 
-**Gejala:**
-- Bercak coklat dengan pola lingkaran konsentris seperti target
-- Biasanya menyerang daun tua terlebih dahulu
-- Daun menguning di sekitar bercak
-- Dapat menyerang batang dan buah
+Early Blight adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Alternaria solani. Penyakit ini biasanya menyerang daun-daun tua terlebih dahulu dan dapat menyebar ke batang serta buah.
 
-**Penyebab:**
-- Jamur Alternaria solani
-- Kondisi lembap dan hangat (20-30°C)
-- Kelembapan tinggi dan curah hujan
+**GEJALA**
+Gejalanya ditandai dengan bercak coklat yang memiliki pola lingkaran konsentris seperti sasaran. Penyakit ini menyerang daun bagian bawah (tua) terlebih dahulu, daun menguning di sekitar bercak, dan pada serangan berat daun akan mengering serta rontok.
 
-**Pengendalian:**
-- Rotasi tanaman minimal 3 tahun
-- Pemangkasan daun terinfeksi
-- Fungisida berbahan aktif chlorothalonil atau mancozeb
-- Jarak tanam yang cukup untuk sirkulasi udara
+**PENYEBAB**
+Penyebabnya adalah jamur Alternaria solani yang berkembang pesat pada kondisi lembap dan hangat dengan suhu 20-30°C, kelembapan tinggi, curah hujan yang sering, serta sirkulasi udara yang buruk di sekitar tanaman.
 
-**Pencegahan:**
-- Pemupukan nitrogen yang seimbang
-- Hindari kekurangan air yang membuat tanaman stres
-- Panen dan buang daun terinfeksi
+**PENANGANAN**
+Lakukan rotasi tanaman minimal 3 tahun dengan tanaman bukan inang, pangkas daun yang terinfeksi segera setelah terlihat, gunakan fungisida berbahan aktif chlorothalonil atau mancozeb, dan atur jarak tanam yang cukup untuk sirkulasi udara. Untuk pencegahan, berikan pupuk nitrogen secara seimbang (jangan berlebihan), hindari kekeringan yang membuat tanaman stres, serta kumpulkan dan buang daun yang terinfeksi (jangan dikompos).
 """,
         imageAsset: "assets/images/early_blight.JPG",
       ),
@@ -73,29 +50,17 @@ Early Blight adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Alter
         icon: Icons.cloudy_snowing,
         color: Colors.blueGrey,
         materi: """
-Late Blight adalah penyakit serius pada tanaman tomat yang disebabkan oleh Phytophthora infestans. Penyakit ini dapat menyebar dengan sangat cepat pada kondisi lembap dan menyebabkan kerusakan besar pada daun, batang, serta buah tanaman.
 
-**Gejala:**
-- Bercak basah berwarna hijau gelap pada daun
-- Tepi bercak berwarna pucat seperti berjamur putih
-- Menyebar sangat cepat dalam kondisi lembap
-- Menyebabkan kebusukan total pada tanaman
+Late Blight adalah penyakit sangat serius pada tanaman tomat yang disebabkan oleh Phytophthora infestans (sejenis jamur air). Penyakit ini dapat menyebar dengan sangat cepat pada kondisi lembap dan dingin, serta dapat memusnahkan seluruh tanaman dalam waktu singkat.
 
-**Penyebab:**
-- Oomycete Phytophthora infestans
-- Kondisi dingin dan lembap (10-25°C)
-- Kelembapan relatif >90%
+**GEJALA**
+Gejalanya berupa bercak basah berwarna hijau gelap hingga hitam pada daun. Tepi bercak tampak seperti berjamur putih, terutama saat pagi hari. Penyakit ini menyebar sangat cepat dalam kondisi lembap (hanya dalam hitungan hari) dan menyebabkan kebusukan total pada batang, daun, dan buah.
 
-**Pengendalian:**
-- Gunakan varietas tahan
-- Hindari penanaman terlalu rapat
-- Fungisida sistemik seperti metalaxyl
-- Sanitasi lahan dari sisa tanaman sakit
+**PENYEBAB**
+Penyebabnya adalah oomycete (jamur air) Phytophthora infestans yang berkembang pada kondisi dingin dan lembap dengan suhu 10-25°C, kelembapan relatif di atas 90% dalam waktu lama, serta spora yang menyebar melalui udara dan percikan air.
 
-**Pencegahan:**
-- Monitoring cuaca untuk periode lembap
-- Aplikasi fungisida preventif saat kondisi mendukung
-- Hindari irigasi overhead
+**PENANGANAN**
+Gunakan varietas tomat yang tahan terhadap Late Blight, hindari penanaman terlalu rapat, aplikasikan fungisida sistemik seperti metalaxyl atau mancozeb, serta lakukan sanitasi lahan dengan membakar sisa tanaman sakit. Untuk pencegahan, pantau prakiraan cuaca untuk periode lembap yang berkepanjangan, aplikasikan fungisida preventif saat kondisi cuaca mendukung, hindari irigasi overhead (dari atas), dan segera cabut serta musnahkan tanaman yang terinfeksi.
 """,
         imageAsset: "assets/images/Late_blight.jpg",
       ),
@@ -105,29 +70,17 @@ Late Blight adalah penyakit serius pada tanaman tomat yang disebabkan oleh Phyto
         icon: Icons.eco,
         color: Color(0xFFB4B23D),
         materi: """
-Leaf Mold adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Cladosporium fulvum. Penyakit ini umumnya muncul pada kondisi lembap dengan sirkulasi udara yang buruk dan dapat menyebabkan daun menguning serta mengering.
 
-**Gejala:**
-- Bercak kuning tidak beraturan di permukaan daun atas
-- Lapisan beludru berwarna hijau zaitun di bawah daun
-- Daun mengering dan menggulung
-- Pertumbuhan tanaman terhambat
+Leaf Mold adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Cladosporium fulvum. Penyakit ini umumnya muncul pada kondisi lembap dengan sirkulasi udara buruk, terutama di dalam rumah kaca atau greenhouse.
 
-**Penyebab:**
-- Jamur Cladosporium fulvum
-- Kelembapan tinggi dan suhu moderat
-- Sirkulasi udara buruk
+**GEJALA**
+Gejalanya berupa bercak kuning tidak beraturan di permukaan atas daun, serta lapisan beludru berwarna hijau zaitun hingga keabu-abuan di bawah daun. Daun akan mengering, menggulung, dan rontok, sedangkan pertumbuhan tanaman terhambat dan produksi buah menurun.
 
-**Pengendalian:**
-- Kontrol kelembapan dalam rumah kaca
-- Ventilasi yang baik
-- Fungisida seperti sulfur atau copper-based
-- Hindari penyiraman berlebihan
+**PENYEBAB**
+Penyebabnya adalah jamur Cladosporium fulvum yang berkembang pada kelembapan tinggi (di atas 85%) dan suhu sedang (22-24°C), sirkulasi udara yang buruk, serta tanaman terlalu rapat sehingga daun saling menutupi.
 
-**Pencegahan:**
-- Jarak tanam yang memadai
-- Pemangkasan daun bawah untuk sirkulasi udara
-- Hindari suhu malam yang terlalu dingin
+**PENANGANAN**
+Kontrol kelembapan dalam rumah kaca (jaga di bawah 85%), pastikan ventilasi udara berjalan baik, aplikasikan fungisida berbahan sulfur atau copper-based, serta hindari penyiraman berlebihan terutama sore hari. Untuk pencegahan, atur jarak tanam yang memadai, pangkas daun bagian bawah untuk meningkatkan sirkulasi udara, hindari suhu malam yang terlalu dingin, dan gunakan mulsa reflektif untuk mengurangi kelembapan.
 """,
         imageAsset: "assets/images/Leaf_Mold.JPG",
       ),
@@ -137,29 +90,17 @@ Leaf Mold adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Cladospo
         icon: Icons.circle_outlined,
         color: Colors.brown,
         materi: """
-Septoria Leaf Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Septoria lycopersici. Penyakit ini biasanya menyerang daun bagian bawah dan dapat menyebabkan daun menguning serta rontok apabila tidak segera ditangani.
 
-**Gejala:**
-- Bercak kecil bulat berwarna coklat pada daun tua
-- Pusat bercak berwarna pucat dengan titik hitam (pycnidia)
-- Daun menguning secara progresif dari bawah
-- Daun rontok secara prematur
+Septoria Leaf Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Septoria lycopersici. Penyakit ini biasanya menyerang daun bagian bawah terlebih dahulu dan dapat menyebabkan kerontokan daun secara prematur.
 
-**Penyebab:**
-- Jamur Septoria lycopersici
-- Percikan air dari tanah
-- Suhu optimal 15-27°C
+**GEJALA**
+Gejalanya ditandai dengan bercak kecil bulat berwarna coklat pada daun tua. Pusat bercak berwarna pucat dengan titik-titik hitam (disebut pycnidia). Daun menguning secara progresif dari bawah ke atas dan rontok secara prematur, membuat buah terbakar sinar matahari.
 
-**Pengendalian:**
-- Mulsa untuk mencegah percikan air
-- Rotasi tanaman 2-3 tahun
-- Fungisida chlorothalonil atau maneb
-- Pemangkasan daun terinfeksi
+**PENYEBAB**
+Penyebabnya adalah jamur Septoria lycopersici yang menyebar melalui percikan air dari tanah yang membawa spora jamur, dengan suhu optimal untuk perkembangan 15-27°C dan kelembapan tinggi dalam waktu lama.
 
-**Pencegahan:**
-- Hindari overhead irrigation
-- Sanitasi tanaman sakit
-- Gunakan varietas yang lebih toleran
+**PENANGANAN**
+Gunakan mulsa untuk mencegah percikan air dari tanah, lakukan rotasi tanaman 2-3 tahun dengan tanaman bukan inang, aplikasikan fungisida berbahan chlorothalonil atau maneb, serta pangkas daun yang terinfeksi segera setelah terlihat. Untuk pencegahan, hindari irigasi overhead (dari atas), buang dan musnahkan sisa tanaman sakit setelah panen, serta gunakan varietas tomat yang lebih toleran jika tersedia.
 """,
         imageAsset: "assets/images/Septoria_leaf_spot.JPG",
       ),
@@ -169,29 +110,17 @@ Septoria Leaf Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh
         icon: Icons.pest_control,
         color: Colors.purple,
         materi: """
-Spider Mites (Two-spotted Spider Mite) adalah hama tungau kecil dari keluarga Tetranychidae yang menyerang tanaman tomat. Hama ini biasanya muncul pada kondisi panas dan kering serta dapat menyebabkan daun berbintik, menguning, dan mengering.
 
-**Gejala:**
-- Bintik-bintik kuning atau putih seperti pasir pada daun
-- Jaring halus di bawah daun atau antara daun
-- Daun mengering dan keriting
-- Pertumbuhan terhambat
+Spider Mites (Tungau laba-laba, khususnya Two-spotted Spider Mite) adalah hama tungau kecil dari keluarga Tetranychidae. Hama ini biasanya muncul pada kondisi panas dan kering serta dapat menyebabkan kerusakan serius pada daun tanaman tomat.
 
-**Penyebab:**
-- Tungau Tetranychus urticae
-- Kondisi panas dan kering
-- Populasi tinggi di musim kemarau
+**GEJALA**
+Gejalanya berupa bintik-bintik kuning atau putih seperti pasir pada permukaan daun, serta jaring-jaring halus seperti sarang laba-laba di bawah daun atau antar daun. Daun akan mengering, menguning, dan akhirnya keriting, sedangkan pertumbuhan tanaman terhambat dan hasil panen menurun.
 
-**Pengendalian:**
-- Semprotan air untuk meningkatkan kelembapan
-- Predator alami seperti Phytoseiulus persimilis
-- Akarisida seperti abamectin atau spiromesifen
-- Minyak nimba atau sabun insektisida
+**PENYEBAB**
+Penyebabnya adalah tungau Tetranychus urticae yang berkembang pesat pada kondisi panas (di atas 30°C) dan udara kering. Populasi meledak di musim kemarau yang panjang, serta kurangnya predator alami akibat penggunaan insektisida berlebihan.
 
-**Pencegahan:**
-- Monitoring rutin dengan kaca pembesar
-- Hindari pemupukan nitrogen berlebihan
-- Jaga kelembapan yang memadai
+**PENANGANAN**
+Semprot air secara teratur ke daun untuk meningkatkan kelembapan, gunakan predator alami seperti Phytoseiulus persimilis (tungau predator), aplikasikan akarisida seperti abamectin atau spiromesifen, serta gunakan minyak nimba atau sabun insektisida sebagai alternatif. Untuk pencegahan, lakukan monitoring rutin dengan kaca pembesar (periksa bawah daun), hindari pemupukan nitrogen berlebihan, jaga kelembapan yang memadai di sekitar tanaman, dan tanam tanaman perangkap seperti jagung atau bunga marigold.
 """,
         imageAsset: "assets/images/spider_mites.JPG",
       ),
@@ -201,28 +130,17 @@ Spider Mites (Two-spotted Spider Mite) adalah hama tungau kecil dari keluarga Te
         icon: Icons.my_location,
         color: Colors.deepOrange,
         materi: """
-Target Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Corynespora cassiicola. Penyakit ini ditandai dengan bercak berbentuk lingkaran seperti target dan dapat menyerang daun, batang, serta buah tanaman.
 
-**Gejala:**
-- Bercak bulat dengan pola lingkaran konsentris seperti target
-- Pusat bercak berwarna coklat dengan tepi kuning
-- Dapat menyerang daun, batang, dan buah
-- Daun rontok prematur saat infeksi berat
+Target Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Corynespora cassiicola. Penyakit ini ditandai dengan bercak khas berbentuk lingkaran konsentris seperti sasaran tembak.
 
-**Penyebab:**
-- Jamur Corynespora cassiicola
-- Suhu hangat (20-30°C) dan kelembapan tinggi
-- Penyebaran melalui spora di udara
+**GEJALA**
+Gejalanya berupa bercak bulat dengan pola lingkaran konsentris seperti sasaran, di mana pusat bercak berwarna coklat dengan tepi berwarna kuning. Penyakit ini dapat menyerang daun, batang, dan buah, serta menyebabkan daun rontok secara prematur saat infeksi sudah berat.
 
-**Pengendalian:**
-- Fungisida seperti azoxystrobin atau pyraclostrobin
-- Rotasi tanaman dengan non-inang
-- Sanitasi sisa tanaman
+**PENYEBAB**
+Penyebabnya adalah jamur Corynespora cassiicola yang berkembang pada suhu hangat antara 20-30°C dengan kelembapan tinggi. Spora menyebar melalui udara dan percikan air, dan tanaman yang terlalu rapat akan mempercepat penyebaran.
 
-**Pencegahan:**
-- Hindari kondisi yang terlalu lembap
-- Pemangkasan untuk meningkatkan sirkulasi udara
-- Monitoring rutin gejala awal
+**PENANGANAN**
+Aplikasikan fungisida seperti azoxystrobin atau pyraclostrobin, lakukan rotasi tanaman dengan tanaman non-inang, serta sanitasi dengan membuang dan memusnahkan sisa tanaman sakit. Untuk pencegahan, hindari kondisi yang terlalu lembap dengan ventilasi baik, lakukan pemangkasan untuk meningkatkan sirkulasi udara, lakukan monitoring rutin untuk mendeteksi gejala awal, serta hindari irigasi overhead.
 """,
         imageAsset: "assets/images/Target_Spot.JPG",
       ),
@@ -232,29 +150,17 @@ Target Spot adalah penyakit jamur pada tanaman tomat yang disebabkan oleh Coryne
         icon: Icons.coronavirus,
         color: Colors.yellow.shade700,
         materi: """
-Tomato Yellow Leaf Curl Virus (TYLCV) adalah penyakit virus pada tanaman tomat yang ditularkan oleh kutu kebul (Bemisia tabaci). Penyakit ini dapat menyebabkan daun menguning, keriting, serta menghambat pertumbuhan dan produksi buah tanaman.
 
-**Gejala:**
-- Daun menguning dan menggulung ke atas
-- Pertumbuhan tanaman kerdil
-- Ruas antar daun memendek
-- Produksi bunga dan buah menurun drastic
+Tomato Yellow Leaf Curl Virus (TYLCV) adalah penyakit virus pada tanaman tomat yang ditularkan oleh kutu kebul (Bemisia tabaci). Penyakit ini sangat merugikan karena dapat menghambat pertumbuhan dan produksi buah secara drastis.
 
-**Penyebab:**
-- Virus TYLCV
-- Vektor: Kutu kebul (Bemisia tabaci)
-- Penularan melalui serangga vektor
+**GEJALA**
+Gejalanya berupa daun menguning di bagian tepi dan menggulung ke atas, pertumbuhan tanaman menjadi kerdil (stunting), ruas antar daun memendek sehingga tanaman tampak rimbun tapi kecil, serta produksi bunga dan buah menurun drastis (buah yang terbentuk pun kecil).
 
-**Pengendalian:**
-- Kontrol kutu kebul dengan insektisida
-- Gunakan varietas tahan virus
-- Cabut dan hancurkan tanaman terinfeksi
-- Penggunaan screen house
+**PENYEBAB**
+Penyebabnya adalah virus TYLCV yang ditularkan oleh vektor kutu kebul (Bemisia tabaci). Virus tidak menular melalui sentuhan atau biji, hanya melalui serangga vektor. Gulma di sekitar kebun dapat menjadi sumber inang virus.
 
-**Pencegahan:**
-- Tanam bibit bebas virus
-- Kontrol gulma inang alternatif
-- Rotasi dengan tanaman non-inang
+**PENANGANAN**
+Kontrol populasi kutu kebul dengan insektisida yang tepat, gunakan varietas tomat yang tahan terhadap TYLCV, cabut dan hancurkan (bakar) tanaman yang terinfeksi, serta gunakan screen house atau jaring serangga untuk melindungi tanaman. Untuk pencegahan, gunakan bibit yang bebas virus dari sumber terpercaya, kontrol gulma di sekitar kebun yang bisa menjadi inang alternatif, lakukan rotasi tanaman dengan tanaman non-inang seperti padi atau jagung, serta tanam perangkap seperti bunga matahari untuk mengalihkan kutu kebul.
 """,
         imageAsset: "assets/images/Tomato_Yellow_Leaf_Curl_Virus.jpg",
       ),
@@ -264,28 +170,17 @@ Tomato Yellow Leaf Curl Virus (TYLCV) adalah penyakit virus pada tanaman tomat y
         icon: Icons.grain,
         color: Colors.amber,
         materi: """
-Tomato Mosaic Virus (ToMV) adalah penyakit virus yang umum menyerang tanaman tomat. Penyakit ini dapat menyebabkan pola mosaik pada daun, pertumbuhan tanaman terhambat, dan menurunkan kualitas serta hasil panen.
 
-**Gejala:**
-- Pola mosaik hijau muda dan hijau tua pada daun
-- Daun keriting dan deformasi
-- Pertumbuhan terhambat
-- Buah menunjukkan gejala mosaik dan kualitas menurun
+Tomato Mosaic Virus (ToMV) adalah penyakit virus yang umum dan sangat mudah menular pada tanaman tomat. Virus ini sangat stabil dan dapat bertahan lama di lingkungan, alat pertanian, serta biji.
 
-**Penyebab:**
-- Tomato Mosaic Virus (ToMV)
-- Penularan melalui kontak, biji, dan alat pertanian
-- Stabilitas virus yang tinggi di lingkungan
+**GEJALA**
+Gejalanya berupa pola mosaik (bercak-bercak) hijau muda dan hijau tua pada daun, daun keriting, menyempit, dan mengalami deformasi bentuk, pertumbuhan tanaman terhambat (kerdil), serta buah menunjukkan gejala mosaik, ukuran kecil, dan kualitas menurun.
 
-**Pengendalian:**
-- Gunakan benih bersertifikat bebas virus
-- Sanitasi alat pertanian dengan desinfektan
-- Hindari merokok di sekitar tanaman (virus tahan pada tembakau)
+**PENYEBAB**
+Penyebabnya adalah Tomato Mosaic Virus (ToMV) yang menular melalui kontak langsung antar tanaman, melalui biji yang terinfeksi, melalui alat pertanian (gunting, pisau, tangan) yang terkontaminasi. Virus tembakau pada rokok juga dapat menulari tomat.
 
-**Pencegahan:**
-- Cuci tangan sebelum menangani tanaman
-- Rotasi tanaman yang cukup lama
-- Hindari penanaman dekat tanaman terinfeksi
+**PENANGANAN**
+Gunakan benih bersertifikat yang bebas virus, sterilkan alat pertanian dengan larutan desinfektan (pemutih 10% atau susu skim), hindari merokok di sekitar tanaman (virus tahan pada tembakau/rokok), serta cabut dan musnahkan tanaman sakit segera. Untuk pencegahan, cuci tangan dengan sabun sebelum menangani tanaman, lakukan rotasi tanaman yang cukup lama (minimal 2 tahun), hindari menanam tomat dekat dengan tanaman yang terinfeksi, serta gunakan varietas tahan virus jika tersedia.
 """,
         imageAsset: "assets/images/Tomato_mosaic_virus.JPG",
       ),
@@ -295,28 +190,17 @@ Tomato Mosaic Virus (ToMV) adalah penyakit virus yang umum menyerang tanaman tom
         icon: Icons.ac_unit,
         color: Colors.blue.shade300,
         materi: """
-Powdery Mildew adalah penyakit jamur pada tanaman tomat yang menyerang permukaan daun. Penyakit ini ditandai dengan lapisan putih seperti tepung dan dapat menyebabkan daun menguning, mengering, serta menghambat pertumbuhan tanaman.
 
-**Gejala:**
-- Lapisan tepung putih pada permukaan daun
-- Daun menguning di bawah lapisan jamur
-- Pertumbuhan terhambat
-- Pada kasus berat, daun mengering dan rontok
+Powdery Mildew (Embun Tepung) adalah penyakit jamur pada tanaman tomat yang menyerang permukaan daun. Penyakit ini berbeda dengan kebanyakan jamur karena tidak membutuhkan air bebas untuk berkembang, justru menyukai kelembapan sedang.
 
-**Penyebab:**
-- Jamur Oidium lycopersici
-- Kondisi kelembapan sedang dengan sirkulasi udara buruk
-- Suhu optimal 20-27°C
+**GEJALA**
+Gejalanya berupa lapisan tepung putih seperti bedak pada permukaan atas dan bawah daun. Daun akan menguning di bawah lapisan jamur, pertumbuhan tanaman terhambat, dan pada kasus berat daun akan mengering, mengkerut, serta rontok.
 
-**Pengendalian:**
-- Fungisida sulfur atau potassium bicarbonate
-- Minyak nimba atau minyak horticultural
-- Biofungisida seperti Ampelomyces quisqualis
+**PENYEBAB**
+Penyebabnya adalah jamur Oidium lycopersici yang berkembang pada kondisi kelembapan sedang (50-70%) dengan sirkulasi udara buruk, suhu optimal antara 20-27°C, serta tanaman yang terlalu rapat dan kurang sinar matahari langsung.
 
-**Pencegahan:**
-- Sirkulasi udara yang baik
-- Hindari penanaman terlalu rapat
-- Pemangkasan daun terinfeksi awal
+**PENANGANAN**
+Aplikasikan fungisida berbahan sulfur atau potassium bicarbonate, gunakan minyak nimba atau minyak hortikultura (hindari saat panas terik), gunakan biofungisida seperti Ampelomyces quisqualis (jamur predator), serta semprot dengan larutan baking soda (1 sdm/liter air) sebagai alternatif alami. Untuk pencegahan, pastikan sirkulasi udara yang baik dengan jarak tanam cukup, hindari penanaman terlalu rapat, pangkas daun yang terinfeksi sejak awal, serta jangan memupuk nitrogen berlebihan karena akan membuat daun terlalu lembut.
 """,
         imageAsset: "assets/images/powdery_mildew.jpg",
       ),
@@ -326,32 +210,17 @@ Powdery Mildew adalah penyakit jamur pada tanaman tomat yang menyerang permukaan
         icon: Icons.health_and_safety,
         color: Colors.green,
         materi: """
-Ciri-ciri tanaman tomat yang sehat dan normal.
 
-**Karakteristik Daun Sehat:**
-- Warna hijau merata dan cerah
-- Tekstur daun halus dan kuat
-- Bentuk daun simetris dan normal
-- Pertumbuhan seragam dan vigor
+Daun sehat adalah indikator utama tanaman tomat yang tumbuh optimal. Daun yang sehat menunjukkan bahwa tanaman mendapatkan nutrisi cukup, air yang sesuai, dan bebas dari serangan hama maupun penyakit.
 
-**Indikator Kesehatan:**
-- Tidak ada bercak, lubang, atau perubahan warna abnormal
-- Batang kuat dan tegak
-- Akar putih dan berkembang baik
-- Produksi bunga dan buah normal
+**GEJALA** (Ciri-ciri)
+Daun sehat memiliki warna hijau merata dan cerah (tidak pucat atau keunguan), tekstur daun halus, lentur, dan tidak mudah robek, bentuk daun simetris sesuai varietas (tidak keriting atau cacat), serta pertumbuhan seragam dan tanaman tampak vigor (bersemangat). Tidak ada bercak, lubang, atau perubahan warna abnormal pada daun; batang kokoh, tegak, dan berwarna hijau keunguan (normal); akar putih bersih dan berkembang dengan baik; serta produksi bunga melimpah dan buah terbentuk normal.
 
-**Pemeliharaan Preventif:**
-- Pemupukan berimbang sesuai fase pertumbuhan
-- Penyiraman teratur dan konsisten
-- Pengendalian hama secara preventif
-- Pemantauan rutin kesehatan tanaman
-- Rotasi tanaman untuk memutus siklus penyakit
+**PENYEBAB** (Faktor pendukung kesehatan)
+Tanaman sehat dapat tercapai dengan pemupukan berimbang sesuai fase pertumbuhan (N, P, K, dan mikro), penyiraman teratur dan konsisten (tidak terlalu basah atau terlalu kering), pengendalian hama secara preventif (bukan hanya setelah ada serangan), serta pemantauan kesehatan tanaman setiap minggu secara rutin.
 
-**Tips Perawatan:**
-- Lakukan inspeksi visual mingguan
-- Catat perubahan yang tidak normal
-- Segera tindak lanjuti gejala awal
-- Pertahankan kebersihan kebun
+**PENANGANAN** (Perawatan)
+Lakukan inspeksi visual setiap 2-3 hari sekali, catat setiap perubahan yang tidak normal (buku harian tanaman), segera tindak lanjuti jika menemukan gejala awal penyakit, jaga kebersihan kebun dari gulma dan sisa tanaman sakit, serta lakukan rotasi tanaman setiap musim tanam untuk memutus siklus penyakit.
 """,
         imageAsset: "assets/images/healthy.jpg",
       ),

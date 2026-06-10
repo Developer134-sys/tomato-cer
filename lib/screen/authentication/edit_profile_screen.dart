@@ -486,7 +486,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           // Lokasi Kebun
                           _buildTextField(
                             controller: _alamatController,
-                            label: "Lokasi Kebun",
+                            label: "Alamat",
                             hint: "Masukkan lokasi kebun Anda",
                             icon: Icons.location_on_rounded,
                             validator: (value) {

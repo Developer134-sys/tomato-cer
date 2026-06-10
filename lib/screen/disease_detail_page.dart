@@ -174,7 +174,7 @@ class DiseaseDetailPage extends StatelessWidget {
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: Colors.green,
+                color: Color.fromARGB(255, 20, 20, 20),
               ),
             ),
           );

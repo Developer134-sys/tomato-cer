@@ -181,8 +181,14 @@ class _HistoryPageState extends State<HistoryPage> {
       await loadData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("✅ Data berhasil dihapus"),
+          const SnackBar( 
+            content: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white, size: 20),
+                    SizedBox(width: 12),
+                    Text('Data berhasil dihapus'),
+                  ],
+                ),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
